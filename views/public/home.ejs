@@ -1,0 +1,394 @@
+<%- include('../partials/public/head', { title: null, nav: 'home' }) %>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span><%= t('brand_tagline') %></span>
+      <h1><%= c('hero_title') %></h1>
+      <p class="hero-lead"><%= c('hero_description') %></p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="/booking?lang=<%= lang %>">
+          <%- include('../partials/icon', { name: 'calendar' }) %>
+          <span><%= t('hero_cta_book') %></span>
+        </a>
+        <a class="btn btn-ghost" href="/services?lang=<%= lang %>">
+          <span><%= t('hero_cta_services') %></span>
+          <%- include('../partials/icon', { name: 'arrow' }) %>
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span><%- include('../partials/icon', { name: 'check-circle' }) %><%= lang === 'ar' ? 'فحص أولي مجاني حسب شروط الشبكة' : 'Bilan initial gratuit selon les conditions du réseau' %></span>
+        <span><%- include('../partials/icon', { name: 'clock' }) %><%= lang === 'ar' ? 'مواعيد مؤكدة هاتفيًا' : 'Rendez-vous confirmés par téléphone' %></span>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <% const heroImages = [c('hero_image'), c('hero_image_2'), c('hero_image_3')].filter(Boolean); %>
+      <% if (hero.type === 'video' && (hero.embed || hero.url)) { %>
+        <div class="hero-media">
+          <% if (hero.embed) { %>
+            <iframe src="<%= hero.embed %>" title="<%= c('hero_title') %>" loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+          <% } else { %>
+            <video controls preload="metadata" playsinline src="<%= hero.url %>"></video>
+          <% } %>
+        </div>
+      <% } else if (hero.type === 'gallery' && heroImages.length > 1) { %>
+        <div class="hero-gallery" data-gallery>
+          <div class="hero-gallery-viewport">
+            <% heroImages.forEach(function (src, i) { %>
+              <img src="<%= src %>" alt="<%= t('hero_image_alt') %>" class="<%= i === 0 ? 'is-active' : '' %>" data-slide="<%= i %>">
+            <% }) %>
+          </div>
+          <div class="hero-gallery-nav">
+            <% heroImages.forEach(function (src, i) { %>
+              <button type="button" class="<%= i === 0 ? 'is-active' : '' %>" data-goto="<%= i %>" aria-label="<%= i + 1 %>"></button>
+            <% }) %>
+          </div>
+        </div>
+      <% } else { %>
+        <img src="<%= heroImages[0] || '/assets/hero-audiologist.svg' %>" alt="<%= t('hero_image_alt') %>" width="560" height="460">
+      <% } %>
+      <% if (hero.type !== 'video') { %>
+      <div class="hero-float f1">
+        <span class="ico"><%- include('../partials/icon', { name: 'hearing-aid' }) %></span>
+        <span><%= lang === 'ar' ? 'ضبط ومتابعة' : 'Réglage et suivi' %><small><%= lang === 'ar' ? 'بعد تركيب الجهاز' : 'Après adaptation' %></small></span>
+      </div>
+      <div class="hero-float f2">
+        <span class="ico"><%- include('../partials/icon', { name: 'shield' }) %></span>
+        <span><%= lang === 'ar' ? 'خصوصية بياناتك' : 'Vos données protégées' %><small><%= lang === 'ar' ? 'وصول محدود للمخوّلين' : 'Accès réservé aux autorisés' %></small></span>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<div class="container stats-band">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-value"><%= stats.centersCount %></div>
+      <div class="stat-label"><%= t('stat_centers') %></div>
+      <div class="stat-note"><%= t('stat_centers_note') %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-value"><%= stats.servicesCount %></div>
+      <div class="stat-label"><%= t('stat_services') %></div>
+      <div class="stat-note"><%= t('stat_services_note') %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-value"><%= stats.wilayasCount %></div>
+      <div class="stat-label"><%= t('stat_wilayas') %></div>
+      <div class="stat-note"><%= t('stat_wilayas_note') %></div>
+    </div>
+    <div class="stat">
+      <% if (stats.years) { %>
+        <div class="stat-value"><%= stats.years %>+</div>
+        <div class="stat-label"><%= t('stat_years') %></div>
+      <% } else { %>
+        <div class="stat-value" style="font-size:1.15rem"><%= t('stat_years_fallback') %></div>
+        <div class="stat-label"><%= t('stat_years') %></div>
+        <div class="stat-note"><%= t('stat_years_fallback_hint') %></div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container intro-grid">
+    <div class="reveal">
+      <div class="section-kicker">AUDIOLEF</div>
+      <h2 class="section-title"><%= c('intro_title') %></h2>
+      <% if (stats.years) { %>
+        <span class="experience-pill"><%- include('../partials/icon', { name: 'sparkles' }) %><%= lang === 'ar' ? 'أكثر من ' + stats.years + ' سنة خبرة' : 'Plus de ' + stats.years + ' ans d’expérience' %></span>
+      <% } %>
+      <p style="color:var(--ink-soft)"><%= c('intro_text') %></p>
+      <a class="btn btn-ghost btn-sm" href="/centers?lang=<%= lang %>"><%= t('nav_centers') %><%- include('../partials/icon', { name: 'arrow' }) %></a>
+    </div>
+    <div class="intro-visual reveal">
+      <div class="intro-badge">
+        <span class="ico"><%- include('../partials/icon', { name: 'assessment' }) %></span>
+        <div>
+          <strong><%= lang === 'ar' ? 'تقييم واضح قبل أي قرار' : 'Une évaluation claire avant toute décision' %></strong>
+          <p><%= lang === 'ar' ? 'فحص هادئ ومنظم، وشرح مفهوم لنتائج التقييم.' : 'Un bilan calme et structuré, avec des explications compréhensibles.' %></p>
+        </div>
+      </div>
+      <div class="intro-badge">
+        <span class="ico"><%- include('../partials/icon', { name: 'hearing-aid' }) %></span>
+        <div>
+          <strong><%= lang === 'ar' ? 'حلول مناسبة لاحتياجك' : 'Des solutions adaptées à votre besoin' %></strong>
+          <p><%= lang === 'ar' ? 'اختيار الجهاز وضبطه ثم المتابعة الدورية.' : 'Choix de l’appareil, réglage puis suivi régulier.' %></p>
+        </div>
+      </div>
+      <div class="intro-badge">
+        <span class="ico"><%- include('../partials/icon', { name: 'map-pin' }) %></span>
+        <div>
+          <strong><%= lang === 'ar' ? 'شبكة مراكز في الجزائر' : 'Un réseau de centres en Algérie' %></strong>
+          <p><%= lang === 'ar' ? 'ابحث عن أقرب مركز حسب الولاية والمدينة.' : 'Trouvez le centre le plus proche par wilaya et ville.' %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="services">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker"><%= t('nav_services') %></div>
+      <h2 class="section-title"><%= t('our_services') %></h2>
+      <p class="section-lead"><%= t('our_services_intro') %></p>
+    </div>
+    <div class="grid-3">
+      <% services.forEach(function (service) { %>
+        <article class="card reveal">
+          <span class="card-icon"><%- include('../partials/icon', { name: service.icon === 'ear' ? 'ear_care' : service.icon }) %></span>
+          <h3><%= lang === 'fr' ? service.name_fr : service.name_ar %></h3>
+          <p><%= lang === 'fr' ? service.description_fr : service.description_ar %></p>
+          <% if (service.duration_min) { %>
+            <div class="card-meta">
+              <%- include('../partials/icon', { name: 'clock' }) %>
+              <span><%= t('duration') %>: <%= service.duration_min %><%= service.duration_max ? '–' + service.duration_max : '' %> <%= t('minutes') %></span>
+            </div>
+          <% } %>
+          <div class="card-actions">
+            <a class="btn btn-ghost btn-sm" href="/services/<%= service.slug %>?lang=<%= lang %>"><%= t('more_info') %></a>
+            <a class="btn btn-primary btn-sm" href="/booking?service=<%= service.id %>&lang=<%= lang %>"><%= t('request_appointment') %></a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker"><%= t('nav_how') %></div>
+      <h2 class="section-title"><%= c('how_title') %></h2>
+      <p class="section-lead"><%= c('how_intro') %></p>
+    </div>
+    <div class="steps">
+      <% [1, 2, 3, 4].forEach(function (n) { %>
+        <div class="step reveal">
+          <div class="step-num"><%= n %></div>
+          <h3><%= c('step' + n + '_title') %></h3>
+          <p><%= c('step' + n + '_text') %></p>
+        </div>
+      <% }) %>
+    </div>
+    <div class="notice reveal">
+      <%- include('../partials/icon', { name: 'alert' }) %>
+      <div><strong><%= t('booking_note_title') %>:</strong> <%= c('booking_note') %></div>
+    </div>
+    <div style="text-align:center;margin-top:26px">
+      <a class="btn btn-primary" href="/booking?lang=<%= lang %>"><%= t('hero_cta_book') %><%- include('../partials/icon', { name: 'arrow' }) %></a>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker">AUDIOLEF</div>
+      <h2 class="section-title"><%= c('brands_title') %></h2>
+      <p class="section-lead"><%= c('brands_intro') %></p>
+    </div>
+    <div class="brands reveal">
+      <div class="brand-chip">
+        <div class="brand-wordmark">HANSATON<small>Sonova Group</small></div>
+      </div>
+      <div class="brand-chip">
+        <div class="brand-wordmark">AUDIFON<small><%= lang === 'ar' ? 'أجهزة سمعية' : 'Appareils auditifs' %></small></div>
+      </div>
+    </div>
+    <p class="brands-note"><%= t('brands_note') %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-kicker"><%= t('audiogram_freq') %></div>
+      <h2 class="section-title"><%= c('audiogram_title') %></h2>
+    </div>
+    <div class="audiogram-wrap reveal">
+      <div style="direction:ltr">
+        <svg viewBox="0 0 620 320" role="img" aria-label="<%= c('audiogram_note') %>" style="width:100%;height:auto">
+          <rect x="0" y="0" width="620" height="320" rx="14" fill="#fbfdff" stroke="#e1ebf3"/>
+          <% for (let i = 0; i < 7; i++) { const x = 70 + i * 86.6; %>
+            <line x1="<%= x %>" y1="30" x2="<%= x %>" y2="270" stroke="#e6eff7" stroke-width="1"/>
+            <text x="<%= x %>" y="292" text-anchor="middle" font-size="12" fill="#5f7689" font-family="Cairo, sans-serif"><%= [125,250,500,1000,2000,4000,8000][i] %></text>
+          <% } %>
+          <% for (let j = 0; j < 8; j++) { const y = 30 + j * 34.3; %>
+            <line x1="70" y1="<%= y %>" x2="590" y2="<%= y %>" stroke="#e6eff7" stroke-width="1"/>
+            <text x="56" y="<%= y + 4 %>" text-anchor="end" font-size="12" fill="#5f7689" font-family="Cairo, sans-serif"><%= [-10,0,20,40,60,80,100,120][j] %></text>
+          <% } %>
+          <text x="70" y="308" font-size="11" fill="#8aa2b5" font-family="Cairo, sans-serif">Hz</text>
+          <text x="16" y="26" font-size="11" fill="#8aa2b5" font-family="Cairo, sans-serif">dB</text>
+
+          <polyline points="70,72.9 156.6,89.4 243.2,105.9 329.8,122.4 416.4,151.9 503,220.7 589.6,236.2"
+                    fill="none" stroke="#1a8ccb" stroke-width="2.5" stroke-linejoin="round"/>
+          <% [[70,72.9],[156.6,89.4],[243.2,105.9],[329.8,122.4],[416.4,151.9],[503,220.7],[589.6,236.2]].forEach(function (p) { %>
+            <circle cx="<%= p[0] %>" cy="<%= p[1] %>" r="6" fill="#fff" stroke="#1a8ccb" stroke-width="2.5"/>
+          <% }) %>
+
+          <polyline points="70,89.4 156.6,105.9 243.2,122.4 329.8,151.9 416.4,171.7 503,253 589.6,269"
+                    fill="none" stroke="#d2643a" stroke-width="2" stroke-dasharray="5 4"/>
+          <% [[70,89.4],[156.6,105.9],[243.2,122.4],[329.8,151.9],[416.4,171.7],[503,253],[589.6,269]].forEach(function (p) { %>
+            <g stroke="#d2643a" stroke-width="2.4">
+              <line x1="<%= p[0]-5 %>" y1="<%= p[1]-5 %>" x2="<%= p[0]+5 %>" y2="<%= p[1]+5 %>"/>
+              <line x1="<%= p[0]-5 %>" y1="<%= p[1]+5 %>" x2="<%= p[0]+5 %>" y2="<%= p[1]-5 %>"/>
+            </g>
+          <% }) %>
+        </svg>
+      </div>
+      <div class="audiogram-legend">
+        <span class="demo-flag"><%- include('../partials/icon', { name: 'info' }) %><%= lang === 'ar' ? 'مثال توضيحي' : 'Exemple illustratif' %></span>
+        <div class="legend-item"><span class="legend-dot"></span><%= t('audiogram_legend_right') %></div>
+        <div class="legend-item"><span class="legend-cross"></span><%= t('audiogram_legend_left') %></div>
+        <p style="font-size:.82rem;color:var(--muted);margin:0"><%= c('audiogram_note') %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="map">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker"><%= lang === 'ar' ? 'التغطية' : 'Couverture' %></div>
+      <h2 class="section-title"><%= c('map_title') %></h2>
+      <p class="section-lead"><%= c('map_intro') %></p>
+    </div>
+    <div class="map-grid reveal">
+      <div class="map-canvas">
+        <svg class="dz-map" viewBox="<%= map.viewBox %>" role="img" aria-label="<%= c('map_title') %>">
+          <% map.shapes.forEach(function (shape) { %>
+            <% if (shape.centers) { %>
+              <path class="dz-shape is-covered" d="<%= shape.d %>" data-wilaya="<%= shape.wilayas[0].id %>" tabindex="0" role="link">
+                <title><%= shape.wilayas.map(function (w) { return (lang === 'fr' ? w.name_fr : w.name_ar) + ' — ' + w.centers; }).join(' · ') %></title>
+              </path>
+            <% } else { %>
+              <path class="dz-shape" d="<%= shape.d %>"></path>
+            <% } %>
+          <% }) %>
+        </svg>
+      </div>
+      <div class="map-side">
+        <div class="map-total">
+          <strong><%= map.registered.length %></strong>
+          <span><%= lang === 'ar' ? 'ولاية مغطاة' : 'wilayas couvertes' %></span>
+        </div>
+        <div class="map-list">
+          <% map.registered.forEach(function (w) { %>
+            <a class="map-wilaya" href="/centers?wilaya=<%= w.id %>&amp;lang=<%= lang %>">
+              <span><%= lang === 'fr' ? w.name_fr : w.name_ar %></span>
+              <span class="map-count"><%= w.centers %></span>
+            </a>
+          <% }) %>
+        </div>
+        <% if (!map.registered.length) { %>
+          <p class="map-empty"><%= lang === 'ar' ? 'لا توجد ولايات مسجّلة بعد.' : 'Aucune wilaya enregistrée pour le moment.' %></p>
+        <% } %>
+        <p class="map-note"><%- include('../partials/icon', { name: 'map-pin' }) %><%= c('map_note') %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="centers">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker"><%= t('nav_centers') %></div>
+      <h2 class="section-title"><%= c('centers_title') %></h2>
+      <p class="section-lead"><%= c('centers_intro') %></p>
+    </div>
+    <div class="grid-3">
+      <% centers.forEach(function (center) { %>
+        <article class="card center-card reveal">
+          <div class="center-top">
+            <div>
+              <h3 class="center-name"><%= lang === 'fr' ? center.name_fr : center.name_ar %></h3>
+              <div class="center-loc">
+                <%- include('../partials/icon', { name: 'map-pin' }) %>
+                <span><%= lang === 'fr' ? center.wilaya_name_fr : center.wilaya_name_ar %> — <%= lang === 'fr' ? center.city_fr : center.city_ar %></span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+              <span class="badge badge-ok"><%= lang === 'ar' ? 'نشط' : 'Actif' %></span>
+              <% if (center.is_demo) { %><span class="badge badge-demo"><%= t('demo_data') %></span><% } %>
+            </div>
+          </div>
+          <div class="center-meta">
+            <% if ((lang === 'fr' ? center.address_fr : center.address_ar)) { %>
+              <div><%- include('../partials/icon', { name: 'building' }) %><span><%= lang === 'fr' ? center.address_fr : center.address_ar %></span></div>
+            <% } %>
+            <% if (center.phone_primary) { %>
+              <div><%- include('../partials/icon', { name: 'phone' }) %><span dir="ltr"><%= center.phone_primary %></span></div>
+            <% } %>
+            <% if ((lang === 'fr' ? center.opening_hours_fr : center.opening_hours_ar)) { %>
+              <div><%- include('../partials/icon', { name: 'clock' }) %><span><%= lang === 'fr' ? center.opening_hours_fr : center.opening_hours_ar %></span></div>
+            <% } %>
+          </div>
+          <div class="chips">
+            <% (center.services || []).slice(0, 3).forEach(function (s) { %>
+              <span class="chip"><%= lang === 'fr' ? s.name_fr : s.name_ar %></span>
+            <% }) %>
+          </div>
+          <div class="card-actions">
+            <% if (center.phone_primary) { %>
+              <a class="btn btn-primary btn-sm" href="tel:<%= center.phone_primary.replace(/\s/g,'') %>"><%- include('../partials/icon', { name: 'phone' }) %><%= t('call_now') %></a>
+            <% } %>
+            <% const mapQuery = (center.latitude && center.longitude)
+                 ? `${center.latitude},${center.longitude}`
+                 : ((lang === 'fr' ? center.address_fr : center.address_ar) || (lang === 'fr' ? center.city_fr : center.city_ar)); %>
+            <a class="btn btn-ghost btn-sm" href="https://www.openstreetmap.org/search?query=<%= encodeURIComponent(mapQuery) %>" target="_blank" rel="noopener">
+              <%- include('../partials/icon', { name: 'map' }) %><%= t('view_map') %>
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+    <div style="text-align:center;margin-top:26px">
+      <a class="btn btn-ghost" href="/centers?lang=<%= lang %>"><%= t('nav_centers') %><%- include('../partials/icon', { name: 'arrow' }) %></a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="section-kicker"><%= t('nav_faq') %></div>
+      <h2 class="section-title"><%= c('faq_title') %></h2>
+      <p class="section-lead"><%= c('faq_intro') %></p>
+    </div>
+    <div class="faq-list" style="max-width:820px;margin-inline:auto">
+      <% faqs.forEach(function (faq, i) { %>
+        <details class="faq-item reveal" <%= i === 0 ? 'open' : '' %>>
+          <summary><%= lang === 'fr' ? faq.question_fr : faq.question_ar %></summary>
+          <div class="faq-answer"><%= lang === 'fr' ? faq.answer_fr : faq.answer_ar %></div>
+        </details>
+      <% }) %>
+    </div>
+    <div style="text-align:center;margin-top:24px;color:var(--muted)">
+      <%= t('faq_more') %> <a href="/contact?lang=<%= lang %>"><%= t('faq_contact') %></a>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="cta-band reveal">
+      <div>
+        <h2><%= c('contact_title') %></h2>
+        <p><%= c('contact_intro') %></p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-ghost" href="/booking?lang=<%= lang %>"><%- include('../partials/icon', { name: 'calendar' }) %><%= t('nav_book') %></a>
+        <% if (c('phone_primary')) { %>
+          <a class="cta-phone" href="tel:<%= c('phone_primary').replace(/\s/g, '') %>"><%- include('../partials/icon', { name: 'phone' }) %><span dir="ltr"><%= c('phone_primary') %></span></a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/public/footer') %>

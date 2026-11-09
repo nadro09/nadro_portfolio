@@ -822,3 +822,113 @@ ul { padding-inline-start: 1.2em; }
   body { background: #fff; }
   .section { padding: 0; }
 }
+
+/* ---------- Hero media: image / gallery / video ---------- */
+.hero-media {
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-lg);
+}
+.hero-media iframe, .hero-media video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  object-fit: cover;
+}
+.hero-gallery {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--green-50);
+  box-shadow: var(--shadow);
+}
+.hero-gallery-viewport { position: relative; aspect-ratio: 4 / 3; }
+.hero-gallery-viewport img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.hero-gallery-viewport img.is-active { opacity: 1; }
+.hero-gallery-nav {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.hero-gallery-nav button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .62);
+  cursor: pointer;
+  transition: width .2s ease, background .2s ease;
+}
+.hero-gallery-nav button.is-active {
+  width: 26px;
+  border-radius: 999px;
+  background: var(--brand-green-2);
+}
+
+/* ---------- Algeria coverage map ---------- */
+.map-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 36px;
+  align-items: center;
+}
+.map-canvas {
+  background: linear-gradient(160deg, #fff, var(--green-50));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+.dz-map { display: block; width: 100%; height: auto; }
+.dz-shape { fill: #e7efec; stroke: #fff; stroke-width: 1.4; transition: fill .2s ease; }
+.dz-shape.is-covered { fill: var(--green-300, #86efac); cursor: pointer; }
+.dz-shape.is-covered:hover, .dz-shape.is-covered:focus { fill: var(--brand-green-2); outline: none; }
+.map-side { display: grid; gap: 14px; }
+.map-total { display: flex; align-items: baseline; gap: 10px; }
+.map-total strong { font-size: 2.4rem; line-height: 1; color: var(--brand-green); }
+.map-total span { font-weight: 600; color: var(--muted); }
+.map-list { display: grid; gap: 8px; }
+.map-wilaya {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: .92rem;
+}
+.map-wilaya:hover { border-color: var(--brand-green-2); color: var(--ink); }
+.map-count {
+  min-width: 28px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--green-100);
+  color: var(--brand-green);
+  font-size: .82rem;
+  text-align: center;
+}
+.map-note { display: flex; gap: 8px; align-items: center; margin: 4px 0 0; color: var(--muted); font-size: .84rem; }
+.map-note svg { width: 16px; height: 16px; flex: none; }
+.map-empty { color: var(--muted); }
+
+@media (max-width: 900px) {
+  .map-grid { grid-template-columns: 1fr; gap: 22px; }
+  .map-total strong { font-size: 2rem; }
+}

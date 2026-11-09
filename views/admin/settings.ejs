@@ -1,0 +1,86 @@
+<%- include('../partials/admin/head', { title: t('settings_title'), active: 'settings' }) %>
+
+<form method="post" action="/admin/settings">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('company_info') %></h2></div>
+      <div class="panel-body">
+        <div class="field" style="margin-bottom:12px"><label for="company_name"><%= lang === 'ar' ? 'اسم الشركة' : 'Nom de la société' %></label><input id="company_name" name="company_name" value="<%= settings.company_name || '' %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="company_email"><%= t('field_email') %></label><input id="company_email" name="company_email" type="email" value="<%= settings.company_email || '' %>" dir="ltr" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="default_language"><%= lang === 'ar' ? 'اللغة الافتراضية' : 'Langue par défaut' %></label>
+          <select id="default_language" name="default_language" <%= can('settings.manage') ? '' : 'disabled' %>>
+            <option value="ar" <%= settings.default_language !== 'fr' ? 'selected' : '' %>>العربية</option>
+            <option value="fr" <%= settings.default_language === 'fr' ? 'selected' : '' %>>Français</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:12px"><label for="working_hours_ar"><%= t('center_hours') %> (AR)</label><input id="working_hours_ar" name="working_hours_ar" value="<%= settings.working_hours_ar || '' %>" dir="rtl" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="working_hours_fr"><%= t('center_hours') %> (FR)</label><input id="working_hours_fr" name="working_hours_fr" value="<%= settings.working_hours_fr || '' %>" dir="ltr" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="years_experience"><%= lang === 'ar' ? 'سنوات الخبرة (اتركه فارغًا إن لم تُؤكد)' : 'Années d’expérience (vide si non confirmé)' %></label><input id="years_experience" name="years_experience" type="number" min="0" max="120" value="<%= settings.years_experience || '' %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field"><label for="years_experience_note"><%= lang === 'ar' ? 'ملاحظة سنوات الخبرة' : 'Note sur l’expérience' %></label><input id="years_experience_note" name="years_experience_note" value="<%= settings.years_experience_note || '' %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= lang === 'ar' ? 'الهوية البصرية والوسائط' : 'Identité visuelle et médias' %></h2></div>
+      <div class="panel-body">
+        <p style="color:var(--muted);font-size:.84rem;margin-top:0"><%= lang === 'ar' ? 'تُطبَّق هذه الألوان فورًا على الموقع. الشعار يُرفع من صفحة المحتوى (قسم الهوية).' : 'Ces couleurs s’appliquent immédiatement au site. Le logo se téléverse depuis la page Contenu (section Identité).' %></p>
+        <div class="grid-2" style="gap:12px">
+          <div class="field"><label for="brand_primary"><%= lang === 'ar' ? 'اللون الأساسي' : 'Couleur principale' %></label><input id="brand_primary" name="brand_primary" type="color" value="<%= settings.brand_primary || '#075b43' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+          <div class="field"><label for="brand_secondary"><%= lang === 'ar' ? 'اللون الثانوي' : 'Couleur secondaire' %></label><input id="brand_secondary" name="brand_secondary" type="color" value="<%= settings.brand_secondary || '#16a34a' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+          <div class="field"><label for="brand_accent"><%= lang === 'ar' ? 'لون التمييز' : 'Couleur d’accent' %></label><input id="brand_accent" name="brand_accent" type="color" value="<%= settings.brand_accent || '#e52323' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+          <div class="field"><label for="brand_bg"><%= lang === 'ar' ? 'لون الخلفية' : 'Couleur de fond' %></label><input id="brand_bg" name="brand_bg" type="color" value="<%= settings.brand_bg || '#f8fafc' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+          <div class="field"><label for="brand_ink"><%= lang === 'ar' ? 'لون الخطوط' : 'Couleur du texte' %></label><input id="brand_ink" name="brand_ink" type="color" value="<%= settings.brand_ink || '#1f2937' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+          <div class="field"><label for="hero_media_type"><%= lang === 'ar' ? 'وسائط الواجهة' : 'Média d’accueil' %></label>
+            <select id="hero_media_type" name="hero_media_type" <%= can('settings.manage') ? '' : 'disabled' %>>
+              <option value="image" <%= (settings.hero_media_type || 'image') === 'image' ? 'selected' : '' %>><%= lang === 'ar' ? 'صورة واحدة' : 'Image unique' %></option>
+              <option value="gallery" <%= settings.hero_media_type === 'gallery' ? 'selected' : '' %>><%= lang === 'ar' ? 'معرض صور' : 'Galerie d’images' %></option>
+              <option value="video" <%= settings.hero_media_type === 'video' ? 'selected' : '' %>><%= lang === 'ar' ? 'فيديو' : 'Vidéo' %></option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:12px"><label for="hero_video_url"><%= lang === 'ar' ? 'رابط الفيديو (يوتيوب/فيميو أو ملف MP4)' : 'URL vidéo (YouTube/Vimeo ou fichier MP4)' %></label><input id="hero_video_url" name="hero_video_url" value="<%= settings.hero_video_url || '' %>" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="alert alert-info" style="margin-bottom:0"><%- include('../partials/icon', { name: 'info' }) %><span><%= lang === 'ar' ? 'صور المعرض (حتى 3 صور) تُرفع من صفحة المحتوى: hero_image و hero_image_2 و hero_image_3.' : 'Les images de la galerie (3 max) se téléversent depuis la page Contenu : hero_image, hero_image_2 et hero_image_3.' %></span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('security_settings') %></h2></div>
+      <div class="panel-body">
+        <div class="field" style="margin-bottom:12px"><label for="password_min_length"><%= lang === 'ar' ? 'الحد الأدنى لطول كلمة المرور' : 'Longueur minimale du mot de passe' %></label><input id="password_min_length" name="password_min_length" type="number" min="8" max="64" value="<%= settings.password_min_length || 10 %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="session_idle_minutes"><%= lang === 'ar' ? 'انتهاء الجلسة بعد (دقيقة)' : 'Expiration de session (minutes)' %></label><input id="session_idle_minutes" name="session_idle_minutes" type="number" min="5" max="720" value="<%= settings.session_idle_minutes || 30 %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="field" style="margin-bottom:12px"><label for="booking_slot_minutes"><%= lang === 'ar' ? 'مدة الموعد الافتراضية (دقيقة)' : 'Durée de créneau (minutes)' %></label><input id="booking_slot_minutes" name="booking_slot_minutes" type="number" min="10" max="240" value="<%= settings.booking_slot_minutes || 30 %>" <%= can('settings.manage') ? '' : 'disabled' %>></div>
+        <div class="alert alert-info" style="margin-bottom:0"><%- include('../partials/icon', { name: 'lock' }) %><span><%= lang === 'ar' ? 'كلمات المرور تُخزَّن مجزّأة، ولا تُعرض أبدًا في الواجهة. الجلسات غير النشطة تنتهي تلقائيًا.' : 'Les mots de passe sont hachés et jamais affichés. Les sessions inactives expirent automatiquement.' %></span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('notification_settings') %></h2></div>
+      <div class="panel-body">
+        <label class="check" style="margin-bottom:10px"><input type="checkbox" name="notify_new_bookings" <%= settings.notify_new_bookings !== '0' ? 'checked' : '' %> <%= can('settings.manage') ? '' : 'disabled' %>><span><%= lang === 'ar' ? 'إشعار الفريق بطلبات المواعيد الجديدة' : 'Notifier l’équipe des nouvelles demandes' %></span></label>
+        <label class="check"><input type="checkbox" name="notify_new_messages" <%= settings.notify_new_messages !== '0' ? 'checked' : '' %> <%= can('settings.manage') ? '' : 'disabled' %>><span><%= lang === 'ar' ? 'إشعار الفريق برسائل التواصل الجديدة' : 'Notifier l’équipe des nouveaux messages' %></span></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('backup') %></h2></div>
+      <div class="panel-body">
+        <p style="color:var(--muted);font-size:.86rem"><%= settings.backup_note || t('backup_note') %></p>
+        <% if (can('backup.run')) { %>
+          <a class="btn btn-ghost" href="/admin/backup"><%- include('../partials/icon', { name: 'download' }) %><%= t('download_backup') %></a>
+        <% } %>
+        <% if (can('settings.manage')) { %>
+          <div class="field" style="margin-top:12px"><label for="backup_note"><%= lang === 'ar' ? 'ملاحظة النسخ الاحتياطي' : 'Note de sauvegarde' %></label><textarea id="backup_note" name="backup_note" style="min-height:70px"><%= settings.backup_note || '' %></textarea></div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <% if (can('settings.manage')) { %>
+    <div class="form-actions" style="justify-content:flex-end">
+      <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('save_settings') %></button>
+    </div>
+  <% } %>
+</form>
+
+<%- include('../partials/admin/foot') %>

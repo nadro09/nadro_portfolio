@@ -5,12 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= (typeof title !== 'undefined' && title) ? title + ' — AUDIOLEF' : 'AUDIOLEF — ' + t('brand_tagline') %></title>
   <meta name="description" content="<%= c('hero_description') %>">
-  <meta name="theme-color" content="#075b43">
+  <meta name="theme-color" content="<%= brand.primary %>">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/site.css">
+  <%# Brand tokens editable from the admin settings page. %>
+  <style>
+    :root {
+      --brand-green: <%= brand.primary %>;
+      --brand-green-2: <%= brand.secondary %>;
+      --brand-red: <%= brand.accent %>;
+      --green-950: color-mix(in srgb, <%= brand.primary %> 72%, black);
+      --green-900: <%= brand.primary %>;
+      --green-800: <%= brand.primary %>;
+      --green-700: <%= brand.primary %>;
+      --green-600: <%= brand.secondary %>;
+      --green-500: <%= brand.secondary %>;
+      --green-100: color-mix(in srgb, <%= brand.secondary %> 20%, white);
+      --green-50: color-mix(in srgb, <%= brand.secondary %> 9%, white);
+      --mint-600: <%= brand.secondary %>;
+      --bg: <%= brand.bg %>;
+      --ink: <%= brand.ink %>;
+      --ink-soft: color-mix(in srgb, <%= brand.ink %> 78%, white);
+      --muted: color-mix(in srgb, <%= brand.ink %> 62%, white);
+      --line: color-mix(in srgb, <%= brand.primary %> 12%, white);
+    }
+  </style>
 </head>
 <body>
 <a class="skip-link" href="#main"><%= lang === 'ar' ? 'انتقل إلى المحتوى' : 'Aller au contenu' %></a>

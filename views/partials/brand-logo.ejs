@@ -1,11 +1,15 @@
+<%
+  // Colours come from the admin settings (res.locals.brand) when provided.
+  const logoBrand = (typeof brand !== 'undefined' && brand) ? brand : { primary: '#075b43', secondary: '#16a34a', accent: '#e52323' };
+%>
 <svg class="brand-logo" viewBox="0 0 56 56" role="img" aria-label="AUDIOLEF" focusable="false">
-  <path d="M9 18C9 7.5 47 7.5 47 18" fill="none" stroke="#e52323" stroke-width="3" stroke-linecap="round"/>
-  <g fill="#16a34a">
+  <path d="M9 18C9 7.5 47 7.5 47 18" fill="none" stroke="<%= logoBrand.accent %>" stroke-width="3" stroke-linecap="round"/>
+  <g fill="<%= logoBrand.secondary %>">
     <rect x="7" y="34" width="4" height="9" rx="2"/>
     <rect x="14" y="30" width="4" height="13" rx="2"/>
     <rect x="21" y="26" width="4" height="17" rx="2"/>
   </g>
-  <g fill="none" stroke="#075b43" stroke-width="3.4" stroke-linecap="round" transform="translate(23 17) scale(1.16)">
+  <g fill="none" stroke="<%= logoBrand.primary %>" stroke-width="3.4" stroke-linecap="round" transform="translate(23 17) scale(1.16)">
     <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/>
     <path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>
   </g>

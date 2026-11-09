@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 460" role="img" aria-label="Illustration d'une consultation auditive">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2fbf6"/>
+      <stop offset="1" stop-color="#e8f7f2"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f2fa"/>
+    </linearGradient>
+    <linearGradient id="scrub" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e94cd"/>
+      <stop offset="1" stop-color="#075b43"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="560" height="460" rx="28" fill="url(#bg)"/>
+
+  <!-- background circles -->
+  <circle cx="470" cy="86" r="54" fill="#ffffff" opacity=".7"/>
+  <circle cx="88" cy="382" r="46" fill="#ffffff" opacity=".55"/>
+  <circle cx="486" cy="360" r="26" fill="#cdeee7" opacity=".85"/>
+
+  <!-- sound waves -->
+  <g stroke="#8fc7e8" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9">
+    <path d="M404 150c26 22 26 66 0 88"/>
+    <path d="M424 134c40 34 40 90 0 120"/>
+    <path d="M444 118c54 46 54 118 0 152" opacity=".55"/>
+  </g>
+
+  <!-- desk -->
+  <rect x="64" y="356" width="432" height="16" rx="8" fill="#d1fae5"/>
+  <rect x="104" y="372" width="14" height="52" rx="6" fill="#b6e8cd"/>
+  <rect x="442" y="372" width="14" height="52" rx="6" fill="#b6e8cd"/>
+
+  <!-- audiologist -->
+  <g>
+    <rect x="150" y="222" width="108" height="140" rx="44" fill="url(#coat)"/>
+    <path d="M150 268c14 24 40 38 54 38s40-14 54-38v-20a54 54 0 0 0-108 0z" fill="url(#scrub)" opacity=".92"/>
+    <path d="M204 250v54" stroke="#cfe2f0" stroke-width="3"/>
+    <circle cx="204" cy="176" r="38" fill="#f3c9a8"/>
+    <path d="M166 172c0-24 18-40 38-40s38 16 38 40c0 6-2 10-4 12-4-18-18-26-34-26s-30 8-34 26c-2-2-4-6-4-12z" fill="#2f3d4a"/>
+    <path d="M170 176c-6 0-10 6-10 12s4 12 10 12" fill="#f3c9a8"/>
+    <path d="M238 176c6 0 10 6 10 12s-4 12-10 12" fill="#f3c9a8"/>
+    <circle cx="192" cy="176" r="3" fill="#2f3d4a"/>
+    <circle cx="216" cy="176" r="3" fill="#2f3d4a"/>
+    <path d="M196 192c4 4 12 4 16 0" stroke="#b96a52" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M150 250c-18 10-30 28-32 52" stroke="url(#scrub)" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <circle cx="116" cy="306" r="12" fill="#f3c9a8"/>
+    <path d="M258 250c16 12 24 30 24 52" stroke="url(#scrub)" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <circle cx="282" cy="306" r="12" fill="#f3c9a8"/>
+  </g>
+
+  <!-- patient -->
+  <g>
+    <rect x="300" y="238" width="108" height="124" rx="44" fill="#dcecf8"/>
+    <path d="M300 282c12 20 36 32 54 32s42-12 54-32v-18a54 54 0 0 0-108 0z" fill="#3aa76b" opacity=".65"/>
+    <circle cx="354" cy="196" r="36" fill="#e9bc98"/>
+    <path d="M318 194c0-22 16-38 36-38s36 16 36 38c0 8-2 14-6 18-2-18-14-28-30-28s-28 10-30 28c-4-4-6-10-6-18z" fill="#43302a"/>
+    <circle cx="342" cy="196" r="3" fill="#43302a"/>
+    <circle cx="366" cy="196" r="3" fill="#43302a"/>
+    <path d="M346 212c4 3 12 3 16 0" stroke="#b96a52" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M300 262c-12 12-16 28-16 46" stroke="#3aa76b" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <circle cx="284" cy="312" r="11" fill="#e9bc98"/>
+    <path d="M408 262c10 12 14 28 14 44" stroke="#3aa76b" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <circle cx="422" cy="310" r="11" fill="#e9bc98"/>
+  </g>
+
+  <!-- hearing aid detail -->
+  <g transform="translate(372 214)">
+    <path d="M0 0c14-14 34-8 34 8 0 12-14 16-14 30 0 10 8 14 8 22" stroke="#075b43" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="28" cy="60" r="7" fill="#0f8f86"/>
+  </g>
+
+  <!-- clipboard on desk -->
+  <g transform="translate(96 300)">
+    <rect x="0" y="10" width="64" height="52" rx="8" fill="#ffffff" stroke="#d1fae5" stroke-width="2"/>
+    <rect x="22" y="2" width="20" height="12" rx="4" fill="#b6e8cd"/>
+    <path d="M12 30h40M12 42h28" stroke="#a9cfe9" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= (typeof title !== 'undefined' && title) ? title + ' — AUDIOLEF' : 'AUDIOLEF — ' + t('brand_tagline') %></title>
+  <meta name="description" content="<%= c('hero_description') %>">
+  <meta name="theme-color" content="#075b43">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip-link" href="#main"><%= lang === 'ar' ? 'انتقل إلى المحتوى' : 'Aller au contenu' %></a>
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a class="brand" href="/?lang=<%= lang %>" aria-label="AUDIOLEF">
+      <% if (c('site_logo')) { %>
+        <img src="<%= c('site_logo') %>" alt="AUDIOLEF" style="height:48px;width:auto">
+      <% } else { %>
+        <span class="brand-mark"><%- include('../brand-logo') %></span>
+      <% } %>
+      <span class="brand-text">
+        <span class="brand-name"><span class="bn-a">AUDIO</span><span class="bn-l">LEF</span></span>
+        <span class="brand-tag"><%= t('brand_tagline') %></span>
+      </span>
+    </a>
+
+    <nav class="site-nav" id="siteNav" aria-label="<%= lang === 'ar' ? 'التنقل الرئيسي' : 'Navigation principale' %>">
+      <a href="/?lang=<%= lang %>" class="<%= nav === 'home' ? 'active' : '' %>"><%= t('nav_home') %></a>
+      <a href="/services?lang=<%= lang %>" class="<%= nav === 'services' ? 'active' : '' %>"><%= t('nav_services') %></a>
+      <a href="/?lang=<%= lang %>#how"><%= t('nav_how') %></a>
+      <a href="/centers?lang=<%= lang %>" class="<%= nav === 'centers' ? 'active' : '' %>"><%= t('nav_centers') %></a>
+      <a href="/faq?lang=<%= lang %>" class="<%= nav === 'faq' ? 'active' : '' %>"><%= t('nav_faq') %></a>
+      <a href="/contact?lang=<%= lang %>" class="<%= nav === 'contact' ? 'active' : '' %>"><%= t('nav_contact') %></a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="lang-switch" href="<%= langUrl(lang === 'ar' ? 'fr' : 'ar') %>" hreflang="<%= lang === 'ar' ? 'fr' : 'ar' %>" aria-label="<%= t('lang_other') %>">
+        <%- include('../icon', { name: 'globe' }) %>
+        <span><%= t('lang_other_short') %></span>
+      </a>
+      <a class="btn btn-primary btn-sm" href="/booking?lang=<%= lang %>">
+        <%- include('../icon', { name: 'calendar' }) %>
+        <span><%= t('nav_book') %></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="<%= lang === 'ar' ? 'القائمة' : 'Menu' %>">
+        <%- include('../icon', { name: 'menu' }) %>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">

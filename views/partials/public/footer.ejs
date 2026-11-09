@@ -1,0 +1,86 @@
+</main>
+
+<div class="footer-wave" aria-hidden="true">
+  <svg viewBox="0 0 1440 90" preserveAspectRatio="none" focusable="false">
+    <path d="M0 62C220 8 420 6 700 34c260 26 470 22 740-16v72H0z" fill="#075b43"/>
+    <path d="M0 62C220 8 420 6 700 34c260 26 470 22 740-16" fill="none" stroke="#e52323" stroke-width="3"/>
+  </svg>
+</div>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <% if (c('site_logo')) { %>
+            <img src="<%= c('site_logo') %>" alt="AUDIOLEF" style="height:40px;width:auto;filter:none;background:#fff;border-radius:8px;padding:4px">
+          <% } else { %>
+            <span class="brand-mark"><%- include('../brand-logo') %></span>
+          <% } %>
+          <span class="brand-text">
+            <span class="brand-name"><span class="bn-a">AUDIO</span><span class="bn-l">LEF</span></span>
+            <span class="brand-tag"><%= t('brand_tagline') %></span>
+          </span>
+        </div>
+        <p class="footer-about"><%= c('footer_about') %></p>
+        <div class="socials">
+          <% if (c('social_facebook')) { %><a href="<%= c('social_facebook') %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('../icon', { name: 'facebook' }) %></a><% } %>
+          <% if (c('social_instagram')) { %><a href="<%= c('social_instagram') %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('../icon', { name: 'instagram' }) %></a><% } %>
+          <% if (c('social_linkedin')) { %><a href="<%= c('social_linkedin') %>" target="_blank" rel="noopener" aria-label="LinkedIn"><%- include('../icon', { name: 'linkedin' }) %></a><% } %>
+        </div>
+      </div>
+
+      <div>
+        <h4><%= t('footer_links') %></h4>
+        <div class="footer-links">
+          <a href="/?lang=<%= lang %>"><%= t('nav_home') %></a>
+          <a href="/services?lang=<%= lang %>"><%= t('nav_services') %></a>
+          <a href="/centers?lang=<%= lang %>"><%= t('nav_centers') %></a>
+          <a href="/faq?lang=<%= lang %>"><%= t('nav_faq') %></a>
+          <a href="/booking?lang=<%= lang %>"><%= t('nav_book') %></a>
+        </div>
+      </div>
+
+      <div>
+        <h4><%= t('footer_services') %></h4>
+        <div class="footer-links">
+          <% (typeof services !== 'undefined' ? services : []).slice(0, 6).forEach(function (s) { %>
+            <a href="/services/<%= s.slug %>?lang=<%= lang %>"><%= lang === 'fr' ? s.name_fr : s.name_ar %></a>
+          <% }) %>
+        </div>
+      </div>
+
+      <div>
+        <h4><%= t('footer_contact') %></h4>
+        <div class="footer-contact">
+          <% if (c('phone_primary')) { %>
+            <a href="tel:<%= c('phone_primary').replace(/\s/g, '') %>"><%- include('../icon', { name: 'phone' }) %><span dir="ltr"><%= c('phone_primary') %></span></a>
+          <% } %>
+          <% if (c('phone_secondary')) { %>
+            <a href="tel:<%= c('phone_secondary').replace(/\s/g, '') %>"><%- include('../icon', { name: 'phone' }) %><span dir="ltr"><%= c('phone_secondary') %></span></a>
+          <% } %>
+          <% if (c('phone_tertiary')) { %>
+            <a href="tel:<%= c('phone_tertiary').replace(/\s/g, '') %>"><%- include('../icon', { name: 'phone' }) %><span dir="ltr"><%= c('phone_tertiary') %></span></a>
+          <% } %>
+          <% if (c('contact_email')) { %>
+            <a href="mailto:<%= c('contact_email') %>"><%- include('../icon', { name: 'mail' }) %><span dir="ltr"><%= c('contact_email') %></span></a>
+          <% } %>
+          <% if (settings.working_hours_ar) { %>
+            <span><%- include('../icon', { name: 'clock' }) %><%= lang === 'fr' ? (settings.working_hours_fr || settings.working_hours_ar) : settings.working_hours_ar %></span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span><%= c('copyright') || ('© ' + new Date().getFullYear() + ' AUDIOLEF') %></span>
+      <div class="footer-bottom-links">
+        <a href="/privacy?lang=<%= lang %>"><%= t('privacy') %></a>
+        <a href="/terms?lang=<%= lang %>"><%= t('terms') %></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

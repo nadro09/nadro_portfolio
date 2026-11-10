@@ -31,13 +31,20 @@
           <div class="field"><label for="brand_accent"><%= lang === 'ar' ? 'لون التمييز' : 'Couleur d’accent' %></label><input id="brand_accent" name="brand_accent" type="color" value="<%= settings.brand_accent || '#e52323' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
           <div class="field"><label for="brand_bg"><%= lang === 'ar' ? 'لون الخلفية' : 'Couleur de fond' %></label><input id="brand_bg" name="brand_bg" type="color" value="<%= settings.brand_bg || '#f8fafc' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
           <div class="field"><label for="brand_ink"><%= lang === 'ar' ? 'لون الخطوط' : 'Couleur du texte' %></label><input id="brand_ink" name="brand_ink" type="color" value="<%= settings.brand_ink || '#1f2937' %>" style="height:42px;padding:4px" <%= can('settings.manage') ? '' : 'disabled' %>></div>
-          <div class="field"><label for="hero_media_type"><%= lang === 'ar' ? 'وسائط الواجهة' : 'Média d’accueil' %></label>
-            <select id="hero_media_type" name="hero_media_type" <%= can('settings.manage') ? '' : 'disabled' %>>
-              <option value="image" <%= (settings.hero_media_type || 'image') === 'image' ? 'selected' : '' %>><%= lang === 'ar' ? 'صورة واحدة' : 'Image unique' %></option>
-              <option value="gallery" <%= settings.hero_media_type === 'gallery' ? 'selected' : '' %>><%= lang === 'ar' ? 'معرض صور' : 'Galerie d’images' %></option>
-              <option value="video" <%= settings.hero_media_type === 'video' ? 'selected' : '' %>><%= lang === 'ar' ? 'فيديو' : 'Vidéo' %></option>
-            </select>
-          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= lang === 'ar' ? 'فيديو الصفحة الرئيسية' : 'Vidéo de la page d’accueil' %></h2></div>
+      <div class="panel-body">
+        <p style="color:var(--muted);font-size:.84rem;margin-top:0"><%= lang === 'ar' ? 'الرابط هنا يظهر داخل إطار الفيديو أسفل عنوان الصفحة الرئيسية مباشرة، ويحل محل الصورة أو المعرض.' : 'Ce lien s’affiche dans le cadre vidéo sous le titre de la page d’accueil et remplace l’image ou la galerie.' %></p>
+        <div class="field" style="margin-bottom:12px"><label for="hero_media_type"><%= lang === 'ar' ? 'وسائط الواجهة' : 'Média d’accueil' %></label>
+          <select id="hero_media_type" name="hero_media_type" <%= can('settings.manage') ? '' : 'disabled' %>>
+            <option value="image" <%= (settings.hero_media_type || 'image') === 'image' ? 'selected' : '' %>><%= lang === 'ar' ? 'صورة واحدة' : 'Image unique' %></option>
+            <option value="gallery" <%= settings.hero_media_type === 'gallery' ? 'selected' : '' %>><%= lang === 'ar' ? 'معرض صور' : 'Galerie d’images' %></option>
+            <option value="video" <%= settings.hero_media_type === 'video' ? 'selected' : '' %>><%= lang === 'ar' ? 'فيديو' : 'Vidéo' %></option>
+          </select>
         </div>
         <div class="field" style="margin-bottom:12px"><label for="hero_video_url"><%= lang === 'ar' ? 'رابط الفيديو (يوتيوب/فيميو أو ملف MP4)' : 'URL vidéo (YouTube/Vimeo ou fichier MP4)' %></label><input id="hero_video_url" name="hero_video_url" value="<%= settings.hero_video_url || '' %>" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." <%= can('settings.manage') ? '' : 'disabled' %>></div>
         <div class="alert alert-info" style="margin-bottom:0"><%- include('../partials/icon', { name: 'info' }) %><span><%= lang === 'ar' ? 'صور المعرض (حتى 3 صور) تُرفع من صفحة المحتوى: hero_image و hero_image_2 و hero_image_3.' : 'Les images de la galerie (3 max) se téléversent depuis la page Contenu : hero_image, hero_image_2 et hero_image_3.' %></span></div>

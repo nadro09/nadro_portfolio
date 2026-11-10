@@ -1,16 +1,17 @@
 <%
   // Colours come from the admin settings (res.locals.brand) when provided.
-  const logoBrand = (typeof brand !== 'undefined' && brand) ? brand : { primary: '#075b43', secondary: '#16a34a', accent: '#e52323' };
+  const logoBrand = (typeof brand !== 'undefined' && brand) ? brand : { primary: '#054937', secondary: '#16a34a', accent: '#e52323' };
 %>
 <svg class="brand-logo" viewBox="0 0 56 56" role="img" aria-label="AUDIOLEF" focusable="false">
-  <path d="M9 18C9 7.5 47 7.5 47 18" fill="none" stroke="<%= logoBrand.accent %>" stroke-width="3" stroke-linecap="round"/>
-  <g fill="<%= logoBrand.secondary %>">
-    <rect x="7" y="34" width="4" height="9" rx="2"/>
-    <rect x="14" y="30" width="4" height="13" rx="2"/>
-    <rect x="21" y="26" width="4" height="17" rx="2"/>
-  </g>
-  <g fill="none" stroke="<%= logoBrand.primary %>" stroke-width="3.4" stroke-linecap="round" transform="translate(23 17) scale(1.16)">
-    <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/>
-    <path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>
-  </g>
+  <defs>
+    <linearGradient id="audiolef-mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset=".55" stop-color="<%= logoBrand.secondary %>"/>
+      <stop offset="1" stop-color="<%= logoBrand.primary %>"/>
+    </linearGradient>
+  </defs>
+  <path d="M18 45c-5-4.6-8-11-8-17.5C10 16.5 17 8.5 26.5 8.5 36 8.5 42 15.5 42 23.5c0 6-3.5 9.5-7 12.5-2.4 2-3.5 3.7-3.5 6.5 0 4.2-3 7.5-7.2 7.5-2.6 0-4.7-1.1-6.3-3"
+        fill="none" stroke="url(#audiolef-mark)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24.5 24.5c0-3.2 2.1-5.4 5.3-5.4 3.1 0 5.2 2.4 5.2 5.4 0 2.6-2 3.9-2 6.6"
+        fill="none" stroke="url(#audiolef-mark)" stroke-width="3.6" stroke-linecap="round"/>
 </svg>

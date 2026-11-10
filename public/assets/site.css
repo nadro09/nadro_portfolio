@@ -2,29 +2,29 @@
    Brand identity: deep green, bright green, mint, red accent, off-white. */
 
 :root {
-  --brand-green: #075b43;
+  --brand-green: #054937;
   --brand-green-2: #16a34a;
   --brand-green-light: #86efac;
   --brand-red: #e52323;
-  --green-950: #04301f;
-  --green-900: #075b43;
-  --green-800: #0a6b4f;
-  --green-700: #0b7a56;
+  --green-950: #04352a;
+  --green-900: #054937;
+  --green-800: #065a45;
+  --green-700: #065a45;
   --green-600: #16a34a;
-  --green-500: #22b05b;
-  --green-300: #86efac;
-  --green-100: #d1fae5;
-  --green-50: #ecfdf5;
-  --mint-100: #dcfce7;
+  --green-500: #22b573;
+  --green-300: #c8e6c9;
+  --green-100: #d7efe4;
+  --green-50: #eef7f2;
+  --mint-100: #e0f2f1;
   --mint-600: #16a34a;
   --sand-50: #fbf7ef;
   --amber-500: #e39a2d;
   --ink: #1f2937;
-  --ink-soft: #374151;
-  --muted: #5b6b7a;
-  --line: #dcece5;
+  --ink-soft: #40514c;
+  --muted: #546e7a;
+  --line: #e2ece7;
   --white: #ffffff;
-  --bg: #f8fafc;
+  --bg: #f4f7f9;
   --radius-sm: 12px;
   --radius: 18px;
   --radius-lg: 26px;
@@ -119,9 +119,7 @@ ul { padding-inline-start: 1.2em; }
 }
 .brand-mark .brand-logo, .brand-logo { width: 34px; height: 34px; display: block; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-.brand-name { font-weight: 800; font-size: 1.18rem; letter-spacing: .16em; }
-.brand-name .bn-a { color: var(--brand-green); }
-.brand-name .bn-l { color: var(--brand-red); }
+.brand-name { font-weight: 800; font-size: 1.18rem; letter-spacing: .16em; color: var(--brand-green); }
 .brand-tag { font-size: .68rem; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
 
 .site-nav { display: flex; align-items: center; gap: 4px; margin-inline-start: auto; }
@@ -169,12 +167,12 @@ ul { padding-inline-start: 1.2em; }
 }
 .btn svg { width: 18px; height: 18px; }
 .btn-primary {
-  background: linear-gradient(180deg, var(--green-600), var(--green-700));
+  background: var(--brand-green);
   color: #fff;
-  box-shadow: 0 12px 24px -14px rgba(7, 91, 67, .92);
+  box-shadow: 0 12px 24px -16px rgba(5, 73, 55, .8);
 }
-.btn-primary:hover { color: #fff; transform: translateY(-1px); box-shadow: 0 16px 28px -14px rgba(7, 91, 67, .92); }
-.btn-ghost { background: #fff; color: var(--green-800); border-color: var(--green-100); }
+.btn-primary:hover { color: #fff; background: var(--green-950); transform: translateY(-1px); box-shadow: 0 16px 28px -16px rgba(5, 73, 55, .8); }
+.btn-ghost { background: #fff; color: var(--brand-green); border-color: color-mix(in srgb, var(--brand-green) 34%, #fff); }
 .btn-ghost:hover { background: var(--green-50); color: var(--green-900); }
 .btn-soft { background: var(--mint-100); color: #0a6b64; }
 .btn-soft:hover { background: #d2efea; color: #07544f; }
@@ -240,6 +238,11 @@ ul { padding-inline-start: 1.2em; }
   color: var(--green-950);
   margin-bottom: 18px;
   letter-spacing: -.02em;
+}
+/* Highlighted last word of the headline — light mint brush stroke. */
+.hero h1 .hl {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M4 14c34-7 76-10 106-9 26 1 60 4 86 2' fill='none' stroke='%23c8e6c9' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat bottom center / 100% .42em;
+  padding-bottom: .04em;
 }
 .hero-lead {
   font-size: 1.12rem;
@@ -705,8 +708,7 @@ ul { padding-inline-start: 1.2em; }
 /* Brand wave + red accent line above the footer */
 .footer-wave { line-height: 0; background: var(--white); margin-bottom: -1px; }
 .footer-wave svg { display: block; width: 100%; height: 84px; }
-.site-footer .bn-a { color: #fff; }
-.site-footer .bn-l { color: #ff8a8a; }
+.site-footer .brand-name { color: #fff; }
 .site-footer .brand-mark { border-color: rgba(255, 255, 255, .22); background: #fff; }
 .site-footer .brand-tag { color: var(--green-300); }
 

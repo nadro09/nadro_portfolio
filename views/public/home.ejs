@@ -4,7 +4,10 @@
   <div class="container hero-grid">
     <div>
       <span class="eyebrow"><span class="dot"></span><%= t('brand_tagline') %></span>
-      <h1><%= c('hero_title') %></h1>
+      <%# Last word of the headline gets the mint brush highlight. %>
+      <% const heroTitleWords = String(c('hero_title') || '').trim().split(/\s+/).filter(Boolean); %>
+      <% const heroTitleLast = heroTitleWords.length > 1 ? heroTitleWords.pop() : ''; %>
+      <h1><%= heroTitleWords.join(' ') + (heroTitleLast ? ' ' : '') %><% if (heroTitleLast) { %><span class="hl"><%= heroTitleLast %></span><% } %></h1>
       <p class="hero-lead"><%= c('hero_description') %></p>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="/booking?lang=<%= lang %>">

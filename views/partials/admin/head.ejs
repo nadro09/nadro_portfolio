@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= (typeof title !== 'undefined' && title) ? title + ' — AUDIOLEF' : 'AUDIOLEF' %></title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a class="admin-brand" href="/admin">
+      <span class="mark"><%- include('../../partials/icon', { name: 'ear' }) %></span>
+      <span class="txt"><strong>AUDIOLEF</strong><small><%= t('brand_tagline') %></small></span>
+    </a>
+
+    <nav class="admin-nav" aria-label="<%= t('admin_panel') %>">
+      <% if (can('dashboard.view')) { %>
+        <a href="/admin" class="<%= active === 'dashboard' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'grid' }) %><span><%= t('menu_dashboard') %></span></a>
+      <% } %>
+      <% if (can('bookings.view')) { %>
+        <a href="/admin/bookings" class="<%= active === 'bookings' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'calendar' }) %><span><%= t('menu_bookings') %></span></a>
+      <% } %>
+      <% if (can('internal.use')) { %>
+        <a href="/admin/messages" class="<%= active === 'messages' ? 'active' : '' %>">
+          <%- include('../../partials/icon', { name: 'conversation' }) %><span><%= t('menu_inbox') %></span>
+          <% if (unreadConversations) { %><span class="nav-badge"><%= unreadConversations %></span><% } %>
+        </a>
+      <% } %>
+      <a href="/admin/notifications" class="<%= active === 'notifications' ? 'active' : '' %>">
+        <%- include('../../partials/icon', { name: 'bell' }) %><span><%= t('menu_notifications') %></span>
+        <% if (unreadNotifications) { %><span class="nav-badge"><%= unreadNotifications %></span><% } %>
+      </a>
+
+      <% if (can('customers.view') || can('contact_messages.view')) { %>
+        <div class="nav-section"><%= lang === 'ar' ? 'العلاقات' : 'Relations' %></div>
+      <% } %>
+      <% if (can('customers.view')) { %>
+        <a href="/admin/customers" class="<%= active === 'customers' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'users' }) %><span><%= t('menu_customers') %></span></a>
+      <% } %>
+      <% if (can('contact_messages.view')) { %>
+        <a href="/admin/contact-messages" class="<%= active === 'contact-messages' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'message-square' }) %><span><%= t('menu_contact_messages') %></span></a>
+      <% } %>
+
+      <% if (can('centers.view') || can('wilayas.view') || can('users.view')) { %>
+        <div class="nav-section"><%= lang === 'ar' ? 'الشبكة' : 'Réseau' %></div>
+      <% } %>
+      <% if (can('centers.view')) { %>
+        <a href="/admin/centers" class="<%= active === 'centers' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'building' }) %><span><%= t('menu_centers') %></span></a>
+      <% } %>
+      <% if (can('wilayas.view')) { %>
+        <a href="/admin/wilayas" class="<%= active === 'wilayas' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'map' }) %><span><%= t('menu_wilayas') %></span></a>
+      <% } %>
+      <% if (can('users.view')) { %>
+        <a href="/admin/users" class="<%= active === 'users' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'shield' }) %><span><%= t('menu_users') %></span></a>
+      <% } %>
+
+      <% if (can('content.view') || can('settings.view') || can('audit.view')) { %>
+        <div class="nav-section"><%= lang === 'ar' ? 'المحتوى والنظام' : 'Contenu et système' %></div>
+      <% } %>
+      <% if (can('content.view')) { %>
+        <a href="/admin/content" class="<%= active === 'content' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'image' }) %><span><%= t('menu_content') %></span></a>
+      <% } %>
+      <% if (can('settings.view')) { %>
+        <a href="/admin/settings" class="<%= active === 'settings' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'settings' }) %><span><%= t('menu_settings') %></span></a>
+      <% } %>
+      <% if (can('audit.view')) { %>
+        <a href="/admin/audit" class="<%= active === 'audit' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'clipboard' }) %><span><%= t('menu_audit') %></span></a>
+      <% } %>
+
+      <div class="nav-section"><%= lang === 'ar' ? 'حسابي' : 'Mon compte' %></div>
+      <a href="/admin/profile" class="<%= active === 'profile' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'user' }) %><span><%= t('menu_profile') %></span></a>
+    </nav>
+
+    <div class="admin-sidebar-foot">
+      <a href="/?lang=<%= lang %>" target="_blank" rel="noopener"><%- include('../../partials/icon', { name: 'external' }) %><span><%= t('menu_view_site') %></span></a>
+      <form method="post" action="/admin/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit"><%- include('../../partials/icon', { name: 'logout' }) %><span><%= t('logout') %></span></button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button class="icon-btn topbar-toggle" id="sidebarToggle" aria-label="<%= t('admin_panel') %>" aria-controls="adminSidebar" aria-expanded="false">
+        <%- include('../../partials/icon', { name: 'menu' }) %>
+      </button>
+      <div class="topbar-title">
+        <span class="crumbs">AUDIOLEF · <%= t('admin_panel') %></span>
+        <h1><%= title %></h1>
+      </div>
+      <div class="topbar-actions">
+        <a class="icon-btn" href="/admin/messages" aria-label="<%= t('menu_inbox') %>" title="<%= t('menu_inbox') %>">
+          <%- include('../../partials/icon', { name: 'conversation' }) %>
+          <% if (unreadConversations) { %><span class="dot-badge"><%= unreadConversations %></span><% } %>
+        </a>
+        <a class="icon-btn" href="/admin/notifications" aria-label="<%= t('menu_notifications') %>" title="<%= t('menu_notifications') %>">
+          <%- include('../../partials/icon', { name: 'bell' }) %>
+          <% if (unreadNotifications) { %><span class="dot-badge"><%= unreadNotifications %></span><% } %>
+        </a>
+        <a class="user-chip" href="/admin/profile">
+          <span class="user-avatar">
+            <% if (currentUser.avatar_path) { %><img src="<%= currentUser.avatar_path %>" alt=""><% } else { %><%= (currentUser.full_name || '?').trim().charAt(0) %><% } %>
+          </span>
+          <span class="meta">
+            <strong><%= currentUser.full_name %></strong>
+            <small><%= (userRoleNames && userRoleNames.length) ? (lang === 'fr' ? userRoleNames[0].name_fr : userRoleNames[0].name_ar) : '' %><%= currentUser.center_name_ar ? ' · ' + (lang === 'fr' ? currentUser.center_name_fr : currentUser.center_name_ar) : '' %></small>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <% if (flash) { %>
+        <div class="alert alert-<%= flash.type === 'error' ? 'error' : (flash.type === 'warning' ? 'warning' : 'success') %>" role="status">
+          <%- include('../../partials/icon', { name: flash.type === 'success' ? 'check-circle' : 'alert' }) %>
+          <span><%= flash.message %></span>
+        </div>
+      <% } %>

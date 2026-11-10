@@ -849,6 +849,9 @@ ul { padding-inline-start: 1.2em; }
   .nav-toggle { display: inline-flex; }
   .header-actions .btn { display: none; }
   .header-inner { gap: 12px; }
+  /* Keep the buttons away from the logo and give the mark more presence. */
+  .header-actions { margin-inline-start: auto; gap: 14px; }
+  .brand-logo { height: 48px; }
 }
 
 @media (max-width: 640px) {
@@ -872,7 +875,7 @@ ul { padding-inline-start: 1.2em; }
   .brand-tag { display: none; }
   .brand-name { font-size: 1.02rem; }
   .brand-mark { width: 38px; height: 38px; }
-  .brand-logo { height: 34px; }
+  .brand-logo { height: 42px; }
   .page-head { padding: 30px 0 24px; }
   .ref-box { padding: 12px 18px; }
   .ref-box strong { font-size: 1.15rem; }

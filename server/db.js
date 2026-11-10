@@ -7,7 +7,10 @@ const path = require('path');
 types.setTypeParser(1082, (value) => value);
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  // AUDIOLEF_DATABASE_URL lets a deployment use its own database when the host
+  // injects a shared DATABASE_URL (e.g. a Neon integration shared with another
+  // app); DATABASE_URL stays the default everywhere else.
+  connectionString: process.env.AUDIOLEF_DATABASE_URL || process.env.DATABASE_URL,
   max: 10,
   idleTimeoutMillis: 30000,
 });

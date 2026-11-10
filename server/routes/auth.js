@@ -12,24 +12,126 @@ function safeNext(value) {
   return next.startsWith('/admin') && !next.startsWith('//') ? next : '/admin';
 }
 
+// The first account is created from the login screen, exactly once: the marker
+// below is written when it is created and the form disappears afterwards.
+const SETUP_KEY = 'setup_completed';
+
+async function setupOpen() {
+  const { rows } = await pool.query('SELECT value FROM system_settings WHERE key = $1', [SETUP_KEY]);
+  return !(rows.length && rows[0].value === 'true');
+}
+
+async function markSetupDone() {
+  await pool.query(
+    `INSERT INTO system_settings (key, value) VALUES ($1, 'true')
+     ON CONFLICT (key) DO UPDATE SET value = 'true'`,
+    [SETUP_KEY]
+  );
+}
+
 function regenerate(req) {
   return new Promise((resolve, reject) => {
     req.session.regenerate((err) => (err ? reject(err) : resolve()));
   });
 }
 
-router.get('/login', async (req, res) => {
-  if (req.user) return res.redirect('/admin');
-  res.render('admin/login', {
-    title: res.locals.t('login_title'),
-    error: req.query.expired ? res.locals.t('session_expired') : null,
-    next: safeNext(req.query.next),
-    username: '',
-  });
+router.get('/login', async (req, res, next) => {
+  try {
+    if (req.user) return res.redirect('/admin');
+    res.render('admin/login', {
+      title: res.locals.t('login_title'),
+      error: req.query.expired ? res.locals.t('session_expired') : null,
+      next: safeNext(req.query.next),
+      username: '',
+      email: '',
+      canSetup: await setupOpen(),
+    });
+  } catch (err) { next(err); }
+});
+
+router.get('/setup', async (req, res, next) => {
+  try {
+    if (req.user) return res.redirect('/admin');
+    if (!(await setupOpen())) {
+      flash(req, 'error', res.locals.t('setup_closed'));
+      return res.redirect('/admin/login');
+    }
+    const settings = await H.getSettings();
+    res.render('admin/setup', {
+      title: res.locals.t('setup_title'),
+      errors: [],
+      values: { full_name: '', email: '', username: '' },
+      minLength: Math.max(8, parseInt(settings.password_min_length, 10) || 10),
+    });
+  } catch (err) { next(err); }
+});
+
+router.post('/setup', async (req, res, next) => {
+  try {
+    if (!(await setupOpen())) {
+      flash(req, 'error', res.locals.t('setup_closed'));
+      return res.redirect('/admin/login');
+    }
+    const settings = await H.getSettings();
+    const min = Math.max(8, parseInt(settings.password_min_length, 10) || 10);
+    const t = res.locals.t;
+    const fullName = String(req.body.full_name || '').trim();
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const username = String(req.body.username || '').trim().toLowerCase();
+    const password = String(req.body.password || '');
+    const confirm = String(req.body.confirm_password || '');
+    const values = { full_name: fullName, email, username };
+    const errors = [];
+
+    if (!fullName) errors.push({ field: 'full_name', message: t('required_error') });
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.push({ field: 'email', message: t('invalid_email') });
+    if (!/^[a-z0-9._-]{3,32}$/.test(username)) errors.push({ field: 'username', message: t('invalid_username') });
+    const policy = H.passwordProblem(password, min);
+    if (policy) errors.push({ field: 'password', message: t('password_policy', { n: min }) });
+    if (password !== confirm) errors.push({ field: 'confirm_password', message: t('password_mismatch') });
+
+    if (!errors.length) {
+      const { rows } = await pool.query(
+        `SELECT (SELECT 1 FROM employees WHERE lower(username) = $1) AS u,
+                (SELECT 1 FROM employees WHERE lower(email) = $2) AS e`,
+        [username, email]
+      );
+      if (rows[0].u) errors.push({ field: 'username', message: t('username_taken') });
+      if (rows[0].e) errors.push({ field: 'email', message: t('email_taken') });
+    }
+
+    if (errors.length) {
+      return res.status(422).render('admin/setup', { title: t('setup_title'), errors, values, minLength: min });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const inserted = await pool.query(
+      `INSERT INTO employees (full_name, username, email, password_hash, job_title_ar, job_title_fr,
+         is_demo, must_change_password) VALUES ($1,$2,$3,$4,'مدير المنصة','Administrateur',false,false)
+       RETURNING id`,
+      [fullName, username, email, hash]
+    );
+    const employeeId = inserted.rows[0].id;
+    await pool.query(
+      `INSERT INTO employee_roles (employee_id, role_id) SELECT $1, id FROM roles WHERE key = 'super_admin'`,
+      [employeeId]
+    );
+    await markSetupDone();
+
+    await regenerate(req);
+    req.session.employeeId = employeeId;
+    req.session.lastSeen = Date.now();
+    req.session.csrf = require('crypto').randomBytes(24).toString('hex');
+    req.user = { id: employeeId, full_name: fullName };
+    await H.audit(req, { action: 'account_created', entityType: 'employee', entityId: employeeId });
+    flash(req, 'success', t('account_created'));
+    res.redirect('/admin');
+  } catch (err) { next(err); }
 });
 
 router.post('/login', async (req, res, next) => {
   try {
+    const email = String(req.body.email || '').trim().toLowerCase();
     const username = String(req.body.username || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const ip = (req.ip || '').replace('::ffff:', '');
@@ -48,6 +150,8 @@ router.post('/login', async (req, res, next) => {
         error: res.locals.t('rate_limited'),
         next: safeNext(req.body.next),
         username,
+        email,
+        canSetup: await setupOpen(),
       });
     }
 
@@ -68,10 +172,13 @@ router.post('/login', async (req, res, next) => {
         error: message,
         next: safeNext(req.body.next),
         username,
+        email,
+        canSetup: await setupOpen(),
       });
     };
 
     if (!employee) return fail(res.locals.t('invalid_credentials'));
+    if (String(employee.email || '').toLowerCase() !== email) return fail(res.locals.t('invalid_credentials'));
     if (!employee.is_active) return fail(res.locals.t('account_disabled'));
     if (employee.locked_until && new Date(employee.locked_until) > new Date()) {
       return fail(res.locals.t('account_locked'));

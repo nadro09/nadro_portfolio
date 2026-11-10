@@ -1,0 +1,13 @@
+<%# Algeria coverage map. Expects `map` (see server/coverage.js). %>
+<% const mapLang = (typeof lang !== 'undefined') ? lang : 'ar'; %>
+<svg class="dz-map" viewBox="<%= map.viewBox %>" role="img" aria-label="<%= (typeof mapLabel !== 'undefined' && mapLabel) ? mapLabel : 'Couverture' %>">
+  <% map.shapes.forEach(function (shape) { %>
+    <% if (shape.centers) { %>
+      <path class="dz-shape is-covered" d="<%= shape.d %>" data-wilaya="<%= shape.wilayas[0].id %>" tabindex="0" role="link">
+        <title><%= shape.wilayas.map(function (w) { return (mapLang === 'fr' ? w.name_fr : w.name_ar) + ' — ' + w.centers; }).join(' · ') %></title>
+      </path>
+    <% } else { %>
+      <path class="dz-shape" d="<%= shape.d %>"></path>
+    <% } %>
+  <% }) %>
+</svg>

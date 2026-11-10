@@ -6,10 +6,19 @@ const multer = require('multer');
 const { pool } = require('../db');
 const { requireAuth, requirePerm, verifyCsrfAfterUpload } = require('../auth');
 const H = require('../helpers');
+const ai = require('../ai');
+const { coverageMap } = require('../coverage');
 
 const router = express.Router();
 
 router.use(requireAuth);
+
+// The AI assistant is offered on every admin page; it reports itself as
+// unavailable (instead of inventing answers) until AI_API_KEY is configured.
+router.use((req, res, next) => {
+  res.locals.aiConfigured = ai.isConfigured();
+  next();
+});
 
 // Shared admin chrome data.
 router.use(async (req, res, next) => {
@@ -122,9 +131,12 @@ router.get('/', requirePerm('dashboard.view'), async (req, res, next) => {
        ORDER BY a.created_at DESC LIMIT 8`
     );
 
+    const map = await coverageMap();
+
     res.render('admin/dashboard', {
       title: res.locals.t('menu_dashboard'),
       active: 'dashboard',
+      map,
       counts: counts.rows[0],
       contactNew: contactNew.rows[0].n,
       customersCount: customers.rows[0].n,
@@ -138,6 +150,42 @@ router.get('/', requirePerm('dashboard.view'), async (req, res, next) => {
       latestActivity: latestActivity.rows,
     });
   } catch (err) { next(err); }
+});
+
+// ---------- AI assistant ----------
+// One endpoint serves the floating assistant (chat) and the reply suggestions
+// inside internal conversations (mode=reply).
+router.post('/ai', async (req, res) => {
+  const lang = res.locals.lang === 'fr' ? 'fr' : 'ar';
+  try {
+    if (!ai.isConfigured()) return res.status(503).json({ error: 'not_configured' });
+    const mode = req.body && req.body.mode === 'reply' ? 'reply' : 'chat';
+    const message = String((req.body && req.body.message) || '').slice(0, 6000).trim();
+    if (!message) return res.status(400).json({ error: 'empty' });
+
+    const system = [
+      'You are the assistant inside AUDIOLEF, an audiology network management platform in Algeria.',
+      'Help staff with bookings, customers, centers, internal messages, website content and settings.',
+      'Be concise, practical and never invent data you were not given.',
+      lang === 'fr' ? 'Answer in French.' : 'Answer in Arabic.',
+      mode === 'reply'
+        ? 'Draft a short, professional reply from the signed-in employee to the internal conversation below. Return only the message text.'
+        : '',
+      `Signed-in employee: ${req.user.full_name}.`,
+    ].filter(Boolean).join('\n');
+
+    const history = Array.isArray(req.body && req.body.history)
+      ? req.body.history.slice(-8)
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+        .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) }))
+      : [];
+
+    const reply = await ai.chat([{ role: 'system', content: system }, ...history, { role: 'user', content: message }]);
+    res.json({ reply });
+  } catch (err) {
+    console.error('[ai]', err.code || '', err.message);
+    res.status(502).json({ error: err.code === 'AI_NOT_CONFIGURED' ? 'not_configured' : 'provider' });
+  }
 });
 
 // ---------- Notifications ----------

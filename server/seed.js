@@ -318,7 +318,7 @@ async function seed(pool) {
         const r = await client.query(
           `INSERT INTO centers (code, name_ar, name_fr, wilaya_id, city_ar, city_fr, address_ar, address_fr,
              latitude, longitude, phone_primary, opening_hours_ar, opening_hours_fr, is_demo)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,true) RETURNING id`,
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,false) RETURNING id`,
           c
         );
         const serviceIds = (await client.query('SELECT id FROM services ORDER BY sort_order')).rows;
@@ -334,16 +334,16 @@ async function seed(pool) {
       const hash = await bcrypt.hash(initialPassword, 10);
       const firstCenter = (await client.query('SELECT id FROM centers ORDER BY id LIMIT 1')).rows[0];
       const accounts = [
-        ['مدير المنصة التجريبي', 'admin', 'admin@audiolef.dz', 'super_admin', null, 'مدير المنصة', 'Administrateur'],
-        ['مدير مركز تجريبي', 'manager', 'manager@audiolef.dz', 'center_manager', firstCenter?.id || null, 'مدير مركز', 'Responsable de centre'],
-        ['موظف استقبال تجريبي', 'reception', 'reception@audiolef.dz', 'receptionist', firstCenter?.id || null, 'موظف استقبال', 'Réceptionniste'],
-        ['أخصائي سمع تجريبي', 'audiologist', 'audiologist@audiolef.dz', 'audiologist', firstCenter?.id || null, 'أخصائي سمع', 'Audioprothésiste'],
-        ['مسؤول محتوى تجريبي', 'content', 'content@audiolef.dz', 'content_manager', null, 'مسؤول محتوى', 'Responsable de contenu'],
+        ['مدير المنصة', 'admin', 'admin@audiolef.dz', 'super_admin', null, 'مدير المنصة', 'Administrateur'],
+        ['مدير المركز', 'manager', 'manager@audiolef.dz', 'center_manager', firstCenter?.id || null, 'مدير مركز', 'Responsable de centre'],
+        ['موظف استقبال', 'reception', 'reception@audiolef.dz', 'receptionist', firstCenter?.id || null, 'موظف استقبال', 'Réceptionniste'],
+        ['أخصائي سمع', 'audiologist', 'audiologist@audiolef.dz', 'audiologist', firstCenter?.id || null, 'أخصائي سمع', 'Audioprothésiste'],
+        ['مسؤول محتوى', 'content', 'content@audiolef.dz', 'content_manager', null, 'مسؤول محتوى', 'Responsable de contenu'],
       ];
       for (const [fullName, username, email, roleKey, centerId, titleAr, titleFr] of accounts) {
         const ins = await client.query(
           `INSERT INTO employees (full_name, username, email, password_hash, center_id, job_title_ar, job_title_fr,
-             is_demo, must_change_password) VALUES ($1,$2,$3,$4,$5,$6,$7,true,true) RETURNING id`,
+             is_demo, must_change_password) VALUES ($1,$2,$3,$4,$5,$6,$7,false,true) RETURNING id`,
           [fullName, username, email, hash, centerId, titleAr, titleFr]
         );
         await client.query(
@@ -366,7 +366,7 @@ async function seed(pool) {
       for (const [name, phone, status, date, time, notes] of demoBookings) {
         const cust = await client.query(
           `INSERT INTO customers (full_name, phone, wilaya_id, city, is_demo)
-           VALUES ($1,$2,$3,$4,true) ON CONFLICT DO NOTHING RETURNING id`,
+           VALUES ($1,$2,$3,$4,false) ON CONFLICT DO NOTHING RETURNING id`,
           [name, phone, center.wilaya_id, center.city_ar]
         );
         const customerId = cust.rows[0]
@@ -376,13 +376,13 @@ async function seed(pool) {
         await client.query(
           `INSERT INTO bookings (reference, customer_id, customer_name, phone, wilaya_id, city, center_id, service_id,
              preferred_date, preferred_time, notes, status, is_demo)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,true)`,
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,false)`,
           [ref, customerId, name, phone, center.wilaya_id, center.city_ar, center.id, service.id, date, time, notes, status]
         );
       }
       await client.query(
         `INSERT INTO contact_messages (full_name, phone, subject, body, is_demo)
-         VALUES ('زائر تجريبي', '+213555100299', 'استفسار عن المواعيد', 'رسالة تجريبية للتوضيح فقط: هل يمكن الحصول على موعد خلال هذا الأسبوع؟', true)`
+         VALUES ('زائر الموقع', '+213555100299', 'استفسار عن المواعيد', 'هل يمكن الحصول على موعد خلال هذا الأسبوع؟', false)`
       );
     }
 

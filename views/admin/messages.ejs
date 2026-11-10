@@ -1,0 +1,32 @@
+<%- include('../partials/admin/head', { title: t('inbox'), active: 'messages' }) %>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/messages">
+    <div class="field grow"><label for="q"><%= t('search') %></label><input id="q" name="q" value="<%= filters.q %>" placeholder="<%= t('search') %>"></div>
+    <button class="btn btn-primary" type="submit"><%= t('search') %></button>
+    <a class="btn btn-primary" href="/admin/messages/new"><%- include('../partials/icon', { name: 'plus' }) %><%= t('new_conversation') %></a>
+  </form>
+
+  <% if (!conversations.length) { %>
+    <div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'conversation' }) %></div><%= t('no_conversations') %></div>
+  <% } else { %>
+    <div class="conv-list">
+      <% conversations.forEach(function (c) { %>
+        <a class="conv-item" href="/admin/messages/<%= c.id %>">
+          <span class="conv-avatar"><%= (c.participants || '?').trim().charAt(0) %></span>
+          <span class="conv-main">
+            <span class="conv-top">
+              <span class="subject"><%= c.subject %></span>
+              <span class="when"><%= c.last_at ? formatDateTime(c.last_at) : formatDateTime(c.created_at) %></span>
+            </span>
+            <span class="preview"><%= (c.last_body || '').slice(0, 90) %></span>
+            <span class="preview"><%= c.participants || '' %></span>
+          </span>
+          <% if (c.unread) { %><span class="conv-unread"><%= c.unread %></span><% } %>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/admin/foot') %>

@@ -9,6 +9,23 @@
       <% const heroTitleLast = heroTitleWords.length > 1 ? heroTitleWords.pop() : ''; %>
       <h1><%= heroTitleWords.join(' ') + (heroTitleLast ? ' ' : '') %><% if (heroTitleLast) { %><span class="hl"><%= heroTitleLast %></span><% } %></h1>
       <p class="hero-lead"><%= c('hero_description') %></p>
+      <%# Intro video under the headline; the link is set from the admin settings. %>
+      <div class="hero-video">
+        <% if (hero.embed) { %>
+          <iframe src="<%= hero.embed %>" title="<%= c('hero_title') %>" loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        <% } else if (hero.type === 'video' && hero.url) { %>
+          <video controls preload="metadata" playsinline src="<%= hero.url %>"></video>
+        <% } else { %>
+          <div class="hero-video-empty">
+            <span class="play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5v11l9-5.5z"/></svg>
+            </span>
+            <strong><%= lang === 'ar' ? 'فيديو AUDIOLEF' : 'Vidéo AUDIOLEF' %></strong>
+            <span><%= lang === 'ar' ? 'يُضاف رابط الفيديو من لوحة الإدارة ← الإعدادات ويظهر هنا مباشرة.' : 'Ajoutez le lien de la vidéo depuis Administration → Paramètres.' %></span>
+          </div>
+        <% } %>
+      </div>
       <div class="hero-ctas">
         <a class="btn btn-primary" href="/booking?lang=<%= lang %>">
           <%- include('../partials/icon', { name: 'calendar' }) %>
@@ -27,16 +44,7 @@
 
     <div class="hero-art">
       <% const heroImages = [c('hero_image'), c('hero_image_2'), c('hero_image_3')].filter(Boolean); %>
-      <% if (hero.type === 'video' && (hero.embed || hero.url)) { %>
-        <div class="hero-media">
-          <% if (hero.embed) { %>
-            <iframe src="<%= hero.embed %>" title="<%= c('hero_title') %>" loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-          <% } else { %>
-            <video controls preload="metadata" playsinline src="<%= hero.url %>"></video>
-          <% } %>
-        </div>
-      <% } else if (hero.type === 'gallery' && heroImages.length > 1) { %>
+      <% if (hero.type === 'gallery' && heroImages.length > 1) { %>
         <div class="hero-gallery" data-gallery>
           <div class="hero-gallery-viewport">
             <% heroImages.forEach(function (src, i) { %>
@@ -263,17 +271,7 @@
     </div>
     <div class="map-grid reveal">
       <div class="map-canvas">
-        <svg class="dz-map" viewBox="<%= map.viewBox %>" role="img" aria-label="<%= c('map_title') %>">
-          <% map.shapes.forEach(function (shape) { %>
-            <% if (shape.centers) { %>
-              <path class="dz-shape is-covered" d="<%= shape.d %>" data-wilaya="<%= shape.wilayas[0].id %>" tabindex="0" role="link">
-                <title><%= shape.wilayas.map(function (w) { return (lang === 'fr' ? w.name_fr : w.name_ar) + ' — ' + w.centers; }).join(' · ') %></title>
-              </path>
-            <% } else { %>
-              <path class="dz-shape" d="<%= shape.d %>"></path>
-            <% } %>
-          <% }) %>
-        </svg>
+        <%- include('../partials/coverage-map', { map: map, mapLabel: c('map_title') }) %>
       </div>
       <div class="map-side">
         <div class="map-total">

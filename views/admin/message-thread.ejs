@@ -1,0 +1,52 @@
+<%- include('../partials/admin/head', { title: conversation.subject, active: 'messages' }) %>
+
+<section class="chat">
+  <div class="chat-head">
+    <a class="icon-btn" href="/admin/messages" aria-label="<%= t('back') %>"><%- include('../partials/icon', { name: 'arrow-left' }) %></a>
+    <h2><%= conversation.subject %></h2>
+    <div class="chat-people">
+      <% participants.forEach(function (p) { %>
+        <span class="chip"><%= p.full_name %></span>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <% messages.forEach(function (m) { %>
+      <div class="chat-row <%= m.sender_id === currentUser.id ? 'mine' : '' %>">
+        <span class="avatar">
+          <% if (m.avatar_path) { %><img src="<%= m.avatar_path %>" alt=""><% } else { %><%= (m.full_name || '?').trim().charAt(0) %><% } %>
+        </span>
+        <div class="chat-bubble">
+          <div class="who"><%= m.full_name || '—' %></div>
+          <div class="txt"><%= m.body %></div>
+          <% if (m.attachments && m.attachments.length) { %>
+            <div class="attachments-list">
+              <% m.attachments.forEach(function (a) { %>
+                <a class="attachment" href="/admin/messages/attachments/<%= a.id %>"><%- include('../partials/icon', { name: 'file' }) %><%= a.name %><span class="cell-sub">(<%= Math.round(a.size / 1024) %> KB)</span></a>
+              <% }) %>
+            </div>
+          <% } %>
+          <time datetime="<%= m.created_at %>"><%= formatDateTime(m.created_at) %></time>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <form class="chat-composer" method="post" action="/admin/messages/<%= conversation.id %>/reply" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <textarea id="body" name="body" placeholder="<%= t('reply') %>…" required></textarea>
+    <div class="chat-tools">
+      <label class="icon-btn" title="<%= t('attach_file') %>">
+        <%- include('../partials/icon', { name: 'file' }) %>
+        <input id="attachment" name="attachment" type="file" style="display:none">
+      </label>
+      <button class="btn btn-ghost btn-sm" type="button" id="aiReplyBtn" data-csrf="<%= csrfToken %>">
+        <%- include('../partials/icon', { name: 'sparkles' }) %><%= lang === 'ar' ? 'اقتراح رد' : 'Suggestion IA' %>
+      </button>
+      <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'send' }) %><%= t('send') %></button>
+    </div>
+  </form>
+</section>
+
+<%- include('../partials/admin/foot') %>

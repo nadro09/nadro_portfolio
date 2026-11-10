@@ -1,17 +1,12 @@
 <%
-  // Colours come from the admin settings (res.locals.brand) when provided.
+  // Official AUDIOLEF mark: an ear drawn with curved lines and the red dot of
+  // the ear canal. Colours follow the brand settings when they are provided.
   const logoBrand = (typeof brand !== 'undefined' && brand) ? brand : { primary: '#054937', secondary: '#16a34a', accent: '#e52323' };
 %>
 <svg class="brand-logo" viewBox="0 0 56 56" role="img" aria-label="AUDIOLEF" focusable="false">
-  <defs>
-    <linearGradient id="audiolef-mark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2dd4bf"/>
-      <stop offset=".55" stop-color="<%= logoBrand.secondary %>"/>
-      <stop offset="1" stop-color="<%= logoBrand.primary %>"/>
-    </linearGradient>
-  </defs>
-  <path d="M18 45c-5-4.6-8-11-8-17.5C10 16.5 17 8.5 26.5 8.5 36 8.5 42 15.5 42 23.5c0 6-3.5 9.5-7 12.5-2.4 2-3.5 3.7-3.5 6.5 0 4.2-3 7.5-7.2 7.5-2.6 0-4.7-1.1-6.3-3"
-        fill="none" stroke="url(#audiolef-mark)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M24.5 24.5c0-3.2 2.1-5.4 5.3-5.4 3.1 0 5.2 2.4 5.2 5.4 0 2.6-2 3.9-2 6.6"
-        fill="none" stroke="url(#audiolef-mark)" stroke-width="3.6" stroke-linecap="round"/>
+  <g fill="none" stroke="<%= logoBrand.primary %>" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M35 44c-1.8 3.2-5.4 5-10 5-8.3 0-15-6.7-15-15S16.7 9 26 9s15.5 6.7 15.5 15c0 4.6-1.8 7.6-4.4 10.6-1.9 2.2-2.1 4.4-2.1 6.4"/>
+    <path d="M26 25.5c0-4 3-7 7.2-7s7.3 3.1 7.3 7.2c0 3.1-1.9 4.8-1.9 7.8"/>
+  </g>
+  <circle cx="26" cy="25.6" r="3.4" fill="<%= logoBrand.accent %>"/>
 </svg>

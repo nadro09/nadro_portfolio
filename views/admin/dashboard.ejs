@@ -1,0 +1,240 @@
+<%- include('../partials/admin/head', { title: t('menu_dashboard'), active: 'dashboard' }) %>
+<% const dayMax = Math.max(1, ...byDay.map(function (d) { return d.n; })); %>
+<% const wilayaMax = Math.max(1, ...byWilaya.map(function (w) { return w.n; })); %>
+<% const serviceMax = Math.max(1, ...byService.map(function (s) { return s.n; })); %>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <span class="ico"><%- include('../partials/icon', { name: 'calendar' }) %></span>
+    <div><div class="num"><%= counts.total %></div><div class="lbl"><%= t('total_bookings') %></div></div>
+  </div>
+  <div class="kpi tone-info">
+    <span class="ico"><%- include('../partials/icon', { name: 'sparkles' }) %></span>
+    <div><div class="num"><%= counts.new %></div><div class="lbl"><%= t('new_bookings') %></div></div>
+  </div>
+  <div class="kpi tone-ok">
+    <span class="ico"><%- include('../partials/icon', { name: 'check-circle' }) %></span>
+    <div><div class="num"><%= counts.confirmed %></div><div class="lbl"><%= t('confirmed_bookings') %></div></div>
+  </div>
+  <div class="kpi tone-warn">
+    <span class="ico"><%- include('../partials/icon', { name: 'clipboard' }) %></span>
+    <div><div class="num"><%= counts.completed %></div><div class="lbl"><%= t('completed_bookings') %></div></div>
+  </div>
+  <% if (can('contact_messages.view')) { %>
+    <div class="kpi">
+      <span class="ico"><%- include('../partials/icon', { name: 'message' }) %></span>
+      <div><div class="num"><%= contactNew %></div><div class="lbl"><%= t('new_messages') %></div></div>
+    </div>
+  <% } %>
+  <% if (can('customers.view')) { %>
+    <div class="kpi">
+      <span class="ico"><%- include('../partials/icon', { name: 'users' }) %></span>
+      <div><div class="num"><%= customersCount %></div><div class="lbl"><%= t('customers_count') %></div></div>
+    </div>
+  <% } %>
+  <% if (can('centers.view')) { %>
+    <div class="kpi">
+      <span class="ico"><%- include('../partials/icon', { name: 'building' }) %></span>
+      <div><div class="num"><%= centersCount %></div><div class="lbl"><%= t('active_centers') %></div></div>
+    </div>
+  <% } %>
+  <% if (can('users.view')) { %>
+    <div class="kpi">
+      <span class="ico"><%- include('../partials/icon', { name: 'shield' }) %></span>
+      <div><div class="num"><%= employeesCount %></div><div class="lbl"><%= t('active_employees') %></div></div>
+    </div>
+  <% } %>
+</div>
+
+<div class="grid-main-side">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head">
+        <h2><%= t('bookings_by_day') %></h2>
+        <span class="spacer"></span>
+        <span class="cell-sub"><%= lang === 'ar' ? 'آخر 14 يومًا' : '14 derniers jours' %></span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-bars">
+          <% byDay.forEach(function (d) { %>
+            <div class="chart-bar" title="<%= d.day %>: <%= d.n %>">
+              <span class="val"><%= d.n %></span>
+              <div class="bar <%= d.n === 0 ? 'empty' : '' %>" style="height:<%= Math.round((d.n / dayMax) * 110) %>px"></div>
+              <span class="lbl"><%= d.day.slice(8, 10) %>/<%= d.day.slice(5, 7) %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('bookings_by_wilaya') %></h2></div>
+        <div class="panel-body">
+          <% if (!byWilaya.length) { %>
+            <div class="empty"><%= t('no_data') %></div>
+          <% } else { %>
+            <div class="bar-list">
+              <% byWilaya.forEach(function (w) { %>
+                <div class="bar-row">
+                  <span class="name"><%= lang === 'fr' ? w.name_fr : w.name_ar %></span>
+                  <span class="track"><span class="fill" style="width:<%= Math.round((w.n / wilayaMax) * 100) %>%"></span></span>
+                  <span class="n"><%= w.n %></span>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('bookings_by_service') %></h2></div>
+        <div class="panel-body">
+          <% if (!byService.length) { %>
+            <div class="empty"><%= t('no_data') %></div>
+          <% } else { %>
+            <div class="bar-list">
+              <% byService.forEach(function (s) { %>
+                <div class="bar-row">
+                  <span class="name"><%= lang === 'fr' ? s.name_fr : s.name_ar %></span>
+                  <span class="track"><span class="fill" style="width:<%= Math.round((s.n / serviceMax) * 100) %>%"></span></span>
+                  <span class="n"><%= s.n %></span>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2><%= lang === 'ar' ? 'خريطة التغطية' : 'Carte de couverture' %></h2>
+        <span class="spacer"></span>
+        <a class="btn btn-ghost btn-sm" href="/admin/wilayas"><%= t('menu_wilayas') %></a>
+      </div>
+      <div class="panel-body">
+        <div class="admin-map">
+          <div class="map-canvas">
+            <%- include('../partials/coverage-map', { map: map, mapLabel: (lang === 'ar' ? 'خريطة التغطية' : 'Carte de couverture') }) %>
+          </div>
+          <div>
+            <div class="admin-map-total">
+              <strong><%= map.registered.length %></strong>
+              <span class="cell-sub"><%= lang === 'ar' ? 'ولاية مغطاة' : 'wilayas couvertes' %></span>
+            </div>
+            <div class="admin-map-list">
+              <% map.registered.forEach(function (w) { %>
+                <a href="/admin/centers?wilaya=<%= w.id %>">
+                  <span><%= lang === 'fr' ? w.name_fr : w.name_ar %></span>
+                  <span class="n"><%= w.centers %></span>
+                </a>
+              <% }) %>
+              <% if (!map.registered.length) { %><p class="cell-sub"><%= t('no_data') %></p><% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2><%= t('latest_bookings') %></h2>
+        <span class="spacer"></span>
+        <% if (can('bookings.view')) { %><a class="btn btn-ghost btn-sm" href="/admin/bookings"><%= t('view') %></a><% } %>
+      </div>
+      <div class="panel-body flush">
+        <% if (!latestBookings.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th><%= t('reference') %></th><th><%= t('field_full_name') %></th><th><%= t('service') %></th><th><%= t('preferred_date') %></th><th><%= t('status') %></th><th></th></tr></thead>
+              <tbody>
+                <% latestBookings.forEach(function (b) { %>
+                  <tr>
+                    <td class="nowrap"><span dir="ltr"><%= b.reference %></span> <% if (b.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></td>
+                    <td><div class="cell-main"><%= b.customer_name %></div><div class="cell-sub" dir="ltr"><%= b.phone %></div></td>
+                    <td><%= lang === 'fr' ? (b.service_fr || '—') : (b.service_ar || '—') %></td>
+                    <td class="nowrap"><%= formatIsoDate(b.preferred_date) %><div class="cell-sub" dir="ltr"><%= b.preferred_time || '' %></div></td>
+                    <td><span class="badge badge-<%= statusMeta[b.status] ? statusMeta[b.status].tone : 'muted' %>"><%= statusLabel(b.status) %></span></td>
+                    <td><a class="btn btn-ghost btn-sm" href="/admin/bookings/<%= b.id %>"><%= t('details') %></a></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <% if (can('bookings.view') || (can('centers.manage')) || can('contact_messages.view') || can('content.manage')) { %>
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('quick_actions') %></h2></div>
+        <div class="panel-body stack" style="gap:8px">
+          <% if (can('bookings.view')) { %><a class="btn btn-ghost btn-block" href="/admin/bookings?status=new"><%- include('../partials/icon', { name: 'calendar' }) %><%= t('new_bookings') %></a><% } %>
+          <% if (can('contact_messages.view')) { %><a class="btn btn-ghost btn-block" href="/admin/contact-messages?status=new"><%- include('../partials/icon', { name: 'message' }) %><%= t('new_messages') %></a><% } %>
+          <% if (can('centers.manage')) { %><a class="btn btn-ghost btn-block" href="/admin/centers/new"><%- include('../partials/icon', { name: 'plus' }) %><%= t('add_center') %></a><% } %>
+          <% if (can('content.manage')) { %><a class="btn btn-ghost btn-block" href="/admin/content"><%- include('../partials/icon', { name: 'image' }) %><%= t('content_title') %></a><% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2><%= t('latest_messages') %></h2>
+        <span class="spacer"></span>
+        <% if (can('contact_messages.view')) { %><a class="btn btn-ghost btn-sm" href="/admin/contact-messages"><%= t('view') %></a><% } %>
+      </div>
+      <div class="panel-body">
+        <% if (!latestMessages.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="timeline">
+            <% latestMessages.forEach(function (m) { %>
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="d"><%= m.full_name %> — <%= m.subject %></div>
+                  <div class="t"><%= formatDateTime(m.created_at) %> · <span class="badge badge-<%= statusMeta[m.status] ? statusMeta[m.status].tone : 'muted' %>"><%= statusLabel(m.status) %></span> <% if (m.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></div>
+                  <% if (can('contact_messages.view')) { %><a href="/admin/contact-messages/<%= m.id %>" class="cell-sub"><%= t('open') %></a><% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <% if (can('audit.view')) { %>
+      <section class="panel">
+        <div class="panel-head">
+          <h2><%= t('latest_activity') %></h2>
+          <span class="spacer"></span>
+          <a class="btn btn-ghost btn-sm" href="/admin/audit"><%= t('view') %></a>
+        </div>
+        <div class="panel-body">
+          <% if (!latestActivity.length) { %>
+            <div class="empty"><%= t('no_data') %></div>
+          <% } else { %>
+            <div class="timeline">
+              <% latestActivity.forEach(function (a) { %>
+                <div class="timeline-item">
+                  <span class="timeline-dot"></span>
+                  <div>
+                    <div class="d"><%= a.action %> · <%= a.entity_type %></div>
+                    <div class="t"><%= a.full_name || a.actor_name %> — <%= formatDateTime(a.created_at) %></div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

@@ -1,0 +1,44 @@
+    </main>
+  </div>
+</div>
+<% if (typeof currentUser !== 'undefined' && currentUser) { %>
+<div id="aiWidget"
+     data-csrf="<%= csrfToken %>"
+     data-lang="<%= lang %>"
+     data-configured="<%= (typeof aiConfigured !== 'undefined' && aiConfigured) ? '1' : '0' %>">
+  <button type="button" class="ai-fab" id="aiFab" aria-controls="aiPanel" aria-expanded="false"
+          aria-label="<%= lang === 'ar' ? 'المساعد الذكي' : 'Assistant IA' %>">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3.5" y="6" width="17" height="12" rx="4"/>
+      <path d="M12 3v2.2M12 19v2"/>
+      <circle cx="9" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+    </svg>
+  </button>
+
+  <section class="ai-panel" id="aiPanel" hidden aria-label="<%= lang === 'ar' ? 'المساعد الذكي' : 'Assistant IA' %>">
+    <header class="ai-head">
+      <%- include('../../partials/icon', { name: 'sparkles' }) %>
+      <span><%= lang === 'ar' ? 'المساعد الذكي' : 'Assistant IA' %></span>
+      <button type="button" class="close" id="aiClose" aria-label="<%= lang === 'ar' ? 'إغلاق' : 'Fermer' %>">✕</button>
+    </header>
+    <div class="ai-log" id="aiLog">
+      <div class="ai-msg bot"><%= lang === 'ar'
+        ? 'مرحباً، أنا مساعد AUDIOLEF. اسألني عن الحجوزات أو المراكز أو طريقة استخدام اللوحة.'
+        : 'Bonjour, je suis l’assistant AUDIOLEF. Posez vos questions sur les rendez-vous, les centres ou la plateforme.' %></div>
+    </div>
+    <form class="ai-form" id="aiForm">
+      <input id="aiInput" autocomplete="off" placeholder="<%= lang === 'ar' ? 'اكتب سؤالك…' : 'Votre question…' %>">
+      <button class="btn btn-primary btn-sm" type="submit"><%= lang === 'ar' ? 'إرسال' : 'Envoyer' %></button>
+    </form>
+    <% if (!(typeof aiConfigured !== 'undefined' && aiConfigured)) { %>
+      <p class="ai-note"><%= lang === 'ar'
+        ? 'المساعد غير مفعّل بعد: أضف المفتاح AI_API_KEY من صفحة الإعدادات.'
+        : 'Assistant non activé : ajoutez la clé AI_API_KEY dans les paramètres.' %></p>
+    <% } %>
+  </section>
+</div>
+<% } %>
+<script src="/assets/admin.js" defer></script>
+</body>
+</html>

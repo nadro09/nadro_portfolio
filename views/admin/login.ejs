@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %> — AUDIOLEF</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="mark"><%- include('../partials/icon', { name: 'ear' }) %></span>
+      <span>
+        <strong>AUDIO LEF</strong>
+        <small><%= t('admin_panel') %> · <%= t('brand_tagline') %></small>
+      </span>
+    </div>
+
+    <h1><%= t('login_title') %></h1>
+    <p class="sub"><%= t('login_subtitle') %></p>
+
+    <% if (flash) { %>
+      <div class="alert alert-<%= flash.type === 'error' ? 'error' : 'success' %>"><span><%= flash.message %></span></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-error"><%- include('../partials/icon', { name: 'alert' }) %><span><%= error %></span></div>
+    <% } %>
+
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="next" value="<%= next %>">
+      <div class="field" style="margin-bottom:12px">
+        <label for="username"><%= t('username') %></label>
+        <input id="username" name="username" value="<%= username || '' %>" autocomplete="username" required autofocus>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label for="password"><%= t('password') %></label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'lock' }) %><%= t('login') %></button>
+    </form>
+
+    <div class="auth-links">
+      <a href="/?lang=<%= lang %>"><%= t('menu_view_site') %></a>
+      <a href="<%= langUrl(lang === 'ar' ? 'fr' : 'ar') %>"><%= t('lang_other') %></a>
+    </div>
+  </div>
+</body>
+</html>

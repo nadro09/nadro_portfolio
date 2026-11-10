@@ -11,14 +11,12 @@
     <div class="footer-grid">
       <div>
         <div class="footer-brand">
-          <% if (c('site_logo')) { %>
-            <img src="<%= c('site_logo') %>" alt="AUDIOLEF" style="height:40px;width:auto;filter:none;background:#fff;border-radius:8px;padding:4px">
-          <% } else { %>
-            <span class="brand-mark"><%- include('../brand-logo') %></span>
-          <% } %>
-          <span class="brand-text">
-            <%- include('../brand-wordmark') %>
-            <span class="brand-tag"><%= t('brand_tagline') %></span>
+          <span class="footer-logo">
+            <% if (c('site_logo')) { %>
+              <img src="<%= c('site_logo') %>" alt="AUDIOLEF">
+            <% } else { %>
+              <%- include('../brand-logo') %>
+            <% } %>
           </span>
         </div>
         <p class="footer-about"><%= c('footer_about') %></p>
@@ -81,6 +79,7 @@
   </div>
 </footer>
 
+<%- include('./assistant') %>
 <script src="/assets/site.js" defer></script>
 </body>
 </html>

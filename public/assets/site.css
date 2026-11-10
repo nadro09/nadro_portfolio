@@ -117,7 +117,7 @@ ul { padding-inline-start: 1.2em; }
   box-shadow: 0 8px 20px -14px rgba(7, 45, 33, .45);
   flex: none;
 }
-.brand-mark .brand-logo, .brand-logo { width: 34px; height: 34px; display: block; }
+.brand-logo { height: 46px; width: auto; display: block; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
 .brand-name {
   position: relative;
@@ -732,6 +732,9 @@ ul { padding-inline-start: 1.2em; }
 .site-footer a { color: #bfe0d2; }
 .site-footer a:hover { color: #fff; }
 .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+/* The official logo keeps its own colours, so it sits on a light plate. */
+.footer-logo { display: inline-flex; background: #fff; border-radius: 10px; padding: 7px 11px; }
+.footer-logo .brand-logo { height: 32px; }
 .footer-brand .brand-name { color: #fff; }
 .footer-brand .brand-tag { color: #8fb8a8; }
 .footer-about { color: #9dc4b5; margin-bottom: 0; max-width: 42ch; }
@@ -869,6 +872,7 @@ ul { padding-inline-start: 1.2em; }
   .brand-tag { display: none; }
   .brand-name { font-size: 1.02rem; }
   .brand-mark { width: 38px; height: 38px; }
+  .brand-logo { height: 34px; }
   .page-head { padding: 30px 0 24px; }
   .ref-box { padding: 12px 18px; }
   .ref-box strong { font-size: 1.15rem; }

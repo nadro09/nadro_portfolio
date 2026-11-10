@@ -82,6 +82,14 @@ svg { flex: none; }
   flex: none;
 }
 .admin-brand .mark svg { width: 22px; height: 22px; }
+.admin-brand .admin-logo {
+  display: inline-flex;
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 9px;
+  flex: none;
+}
+.admin-brand .admin-logo img { height: 22px; width: auto; display: block; }
 .admin-brand .txt { line-height: 1.15; }
 .admin-brand .txt strong { display: block; font-size: 1rem; font-weight: 800; }
 .admin-brand .txt .brand-name { color: #fff; font-size: 1rem; letter-spacing: .13em; }

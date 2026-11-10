@@ -3,6 +3,7 @@ const express = require('express');
 const { pool } = require('../db');
 const { t } = require('../i18n');
 const H = require('../helpers');
+const ai = require('../ai');
 
 const router = express.Router();
 
@@ -371,6 +372,102 @@ router.get('/terms', async (req, res, next) => {
     const base = await commonData();
     res.render('public/legal', { nav: 'terms', docKey: 'terms_of_use', ...base });
   } catch (err) { next(err); }
+});
+
+// Public assistant -----------------------------------------------------------
+// Answers questions about hearing care, services and bookings. Uses the same
+// AI client as the admin tools; without a key it answers "not configured" so
+// the widget can point visitors to the phone number instead of guessing.
+const assistantHits = new Map();
+function assistantThrottle(req, res, next) {
+  const key = req.ip || 'unknown';
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  const entry = assistantHits.get(key);
+  if (!entry || now - entry.start > windowMs) {
+    assistantHits.set(key, { start: now, count: 1 });
+    return next();
+  }
+  entry.count += 1;
+  if (entry.count > 20) return res.status(429).json({ error: 'rate_limited' });
+  return next();
+}
+
+let assistantFactsCache = { value: null, at: 0 };
+async function assistantFacts() {
+  if (assistantFactsCache.value && Date.now() - assistantFactsCache.at < 60000) {
+    return assistantFactsCache.value;
+  }
+  const [services, centers, settings] = await Promise.all([
+    pool.query('SELECT name_ar, name_fr FROM services WHERE is_active = true ORDER BY sort_order, id'),
+    pool.query(`SELECT count(*)::int AS total, count(DISTINCT city_ar)::int AS cities
+                FROM centers WHERE is_active = true AND deleted_at IS NULL`),
+    H.getSettings(),
+  ]);
+  const value = {
+    services: services.rows.map((s) => `${s.name_ar} / ${s.name_fr}`),
+    centers: centers.rows[0].total,
+    cities: centers.rows[0].cities,
+    phone: settings.phone_primary || '',
+    email: settings.contact_email || '',
+    hoursAr: settings.working_hours_ar || '',
+    hoursFr: settings.working_hours_fr || '',
+  };
+  assistantFactsCache = { value, at: Date.now() };
+  return value;
+}
+
+function assistantSystemPrompt(lang, facts) {
+  const shared = [
+    facts.services.length ? `- الخدمات / Services: ${facts.services.join(' • ')}` : null,
+    `- ${facts.centers} centres / مراكز`,
+    facts.phone ? `- Téléphone / الهاتف: ${facts.phone}` : null,
+    facts.email ? `- E-mail / البريد: ${facts.email}` : null,
+  ].filter(Boolean);
+  if (lang === 'fr') {
+    return [
+      'Tu es l’assistant numérique d’AUDIOLEF, réseau de services auditifs en Algérie.',
+      'Réponds en 3 à 5 lignes maximum, en français, sur un ton professionnel et chaleureux.',
+      'Faits réels sur le réseau :',
+      ...shared,
+      `- Horaires : ${facts.hoursFr || facts.hoursAr || 'non communiqués'}`,
+      'Règles strictes : aucun diagnostic médical, aucune recommandation de médicament, aucun prix inventé ; pour un rendez-vous, oriente vers la page de réservation du site ; en cas de douleur soudaine ou d’urgence ORL, invite à appeler ou à se rendre au centre le plus proche ; hors du domaine de l’audition, excuse-toi poliment et propose la page contact.',
+    ].join('\n');
+  }
+  return [
+    'أنت المساعد الرقمي لمنصة AUDIOLEF لخدمات السمع في الجزائر.',
+    'أجب في ثلاثة إلى خمسة أسطر كحد أقصى بالعربية الفصحى المبسطة وبأسلوب مهني ودود.',
+    'معلومات حقيقية عن المنصة:',
+    ...shared,
+    `- أوقات العمل: ${facts.hoursAr || facts.hoursFr || 'غير مدرجة'}`,
+    'قواعد صارمة: لا تقدّم تشخيصًا طبيًا ولا توصيات دوائية ولا أسعارًا من عندك؛ لطلب موعد وجّه الزائر إلى صفحة الحجز في الموقع؛ في حال ألم مفاجئ أو حالة عاجلة اطلب منه الاتصال بنا أو التوجه لأقرب مركز؛ إن كان السؤال خارج نطاق السمع والمنصة اعتذر بلطف واقترح صفحة الاتصال.',
+  ].join('\n');
+}
+
+router.post('/api/assistant', assistantThrottle, async (req, res) => {
+  if (!ai.isConfigured()) return res.status(503).json({ error: 'not_configured' });
+  const message = String((req.body && req.body.message) || '').trim().slice(0, 1000);
+  if (!message) return res.status(400).json({ error: 'invalid_message' });
+  const history = Array.isArray(req.body.history)
+    ? req.body.history
+      .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+      .slice(-6)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 1000) }))
+    : [];
+  try {
+    const facts = await assistantFacts();
+    const reply = await ai.chat([
+      { role: 'system', content: assistantSystemPrompt(res.locals.lang === 'fr' ? 'fr' : 'ar', facts) },
+      ...history,
+      { role: 'user', content: message },
+    ], { maxTokens: 450, temperature: 0.3 });
+    if (!reply) return res.status(502).json({ error: 'empty_reply' });
+    return res.json({ reply });
+  } catch (err) {
+    console.error('[audiolef] assistant error:', err.code || err.message);
+    const notConfigured = err.code === 'AI_NOT_CONFIGURED';
+    return res.status(notConfigured ? 503 : 502).json({ error: notConfigured ? 'not_configured' : 'provider_error' });
+  }
 });
 
 module.exports = router;

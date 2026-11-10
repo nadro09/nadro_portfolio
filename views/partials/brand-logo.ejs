@@ -1,12 +1,2 @@
-<%
-  // Official AUDIOLEF mark: an ear drawn with curved lines and the red dot of
-  // the ear canal. Colours follow the brand settings when they are provided.
-  const logoBrand = (typeof brand !== 'undefined' && brand) ? brand : { primary: '#054937', secondary: '#16a34a', accent: '#e52323' };
-%>
-<svg class="brand-logo" viewBox="0 0 56 56" role="img" aria-label="AUDIOLEF" focusable="false">
-  <g fill="none" stroke="<%= logoBrand.primary %>" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M35 44c-1.8 3.2-5.4 5-10 5-8.3 0-15-6.7-15-15S16.7 9 26 9s15.5 6.7 15.5 15c0 4.6-1.8 7.6-4.4 10.6-1.9 2.2-2.1 4.4-2.1 6.4"/>
-    <path d="M26 25.5c0-4 3-7 7.2-7s7.3 3.1 7.3 7.2c0 3.1-1.9 4.8-1.9 7.8"/>
-  </g>
-  <circle cx="26" cy="25.6" r="3.4" fill="<%= logoBrand.accent %>"/>
-</svg>
+<%# Official AUDIOLEF logo lockup (signal lines, "AUDIOL e F" and the red dot). %>
+<img class="brand-logo" src="/assets/audiolef-logo.png" alt="AUDIOLEF" width="1774" height="887">

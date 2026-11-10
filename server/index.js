@@ -14,7 +14,15 @@ const auth = require('./auth');
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3000;
-const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'data', 'uploads');
+
+// Serverless hosts (Vercel) mount the code read-only, so uploads have to live in
+// the writable temp directory there. The route modules read the resolved path
+// from process.env, so it is published once here.
+const UPLOAD_DIR = process.env.UPLOAD_DIR
+  || (process.env.VERCEL
+    ? path.join(require('os').tmpdir(), 'audiolef-uploads')
+    : path.join(__dirname, '..', 'data', 'uploads'));
+process.env.UPLOAD_DIR = UPLOAD_DIR;
 
 for (const dir of [UPLOAD_DIR, path.join(UPLOAD_DIR, 'avatars'), path.join(UPLOAD_DIR, 'content'), path.join(UPLOAD_DIR, 'attachments')]) {
   fs.mkdirSync(dir, { recursive: true });
@@ -243,6 +251,8 @@ async function start() {
   });
 }
 
-start();
+// On a serverless host the platform owns the listener and api/index.js exports
+// the app as the handler; only a normal long-running process starts listening.
+if (!process.env.VERCEL) start();
 
 module.exports = app;

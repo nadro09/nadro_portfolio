@@ -315,6 +315,25 @@ CREATE TABLE IF NOT EXISTS faqs (
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
 
+-- Advertising landing pages: the admin writes the page code directly, and a
+-- published page is served on its own public link (/lp/<slug>).
+CREATE TABLE IF NOT EXISTS landing_pages (
+  id            serial PRIMARY KEY,
+  slug          text NOT NULL UNIQUE,
+  title_ar      text NOT NULL DEFAULT '',
+  title_fr      text NOT NULL DEFAULT '',
+  html          text NOT NULL DEFAULT '',
+  status        text NOT NULL DEFAULT 'draft',
+  views         integer NOT NULL DEFAULT 0,
+  published_at  timestamptz,
+  created_by    integer REFERENCES employees(id),
+  updated_by    integer REFERENCES employees(id),
+  deleted_at    timestamptz,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_landing_status ON landing_pages(status) WHERE deleted_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS audit_logs (
   id            serial PRIMARY KEY,
   employee_id   integer REFERENCES employees(id),
@@ -369,7 +388,8 @@ DO $$
 DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY['wilayas','roles','services','centers','employees','customers','bookings',
-                           'contact_messages','internal_conversations','website_content','faqs','system_settings']
+                           'contact_messages','internal_conversations','website_content','faqs','system_settings',
+                           'landing_pages']
   LOOP
     EXECUTE format('DROP TRIGGER IF EXISTS trg_%1$s_updated ON %1$I', t);
     EXECUTE format('CREATE TRIGGER trg_%1$s_updated BEFORE UPDATE ON %1$I FOR EACH ROW EXECUTE FUNCTION set_updated_at()', t);

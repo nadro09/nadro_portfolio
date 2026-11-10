@@ -52,6 +52,9 @@
   background: var(--brand-green, #054937);
   color: #fff;
 }
+.assistant-id { display: flex; align-items: center; gap: 10px; }
+.assistant-brand { width: 38px; height: 34px; border-radius: 10px; background: #fff; display: grid; place-items: center; padding: 4px; flex: none; }
+.assistant-brand img { width: 100%; height: 100%; object-fit: contain; }
 .assistant-head h2 { margin: 0; font-size: 1rem; font-weight: 800; }
 .assistant-head p { margin: 3px 0 0; font-size: .74rem; color: rgba(255, 255, 255, .78); }
 .assistant-close {

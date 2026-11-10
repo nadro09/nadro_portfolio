@@ -61,11 +61,14 @@
         <a href="/admin/users" class="<%= active === 'users' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'shield' }) %><span><%= t('menu_users') %></span></a>
       <% } %>
 
-      <% if (can('content.view') || can('settings.view') || can('audit.view')) { %>
+      <% if (can('content.view') || can('landing.view') || can('settings.view') || can('audit.view')) { %>
         <div class="nav-section"><%= lang === 'ar' ? 'المحتوى والنظام' : 'Contenu et système' %></div>
       <% } %>
       <% if (can('content.view')) { %>
         <a href="/admin/content" class="<%= active === 'content' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'image' }) %><span><%= t('menu_content') %></span></a>
+      <% } %>
+      <% if (can('landing.view')) { %>
+        <a href="/admin/landing" class="<%= active === 'landing' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'file' }) %><span><%= t('menu_landing') %></span></a>
       <% } %>
       <% if (can('settings.view')) { %>
         <a href="/admin/settings" class="<%= active === 'settings' ? 'active' : '' %>"><%- include('../../partials/icon', { name: 'settings' }) %><span><%= t('menu_settings') %></span></a>

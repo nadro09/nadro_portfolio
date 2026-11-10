@@ -44,6 +44,9 @@ const PERMISSIONS = [
   ['content.view', 'content', 'عرض محتوى الموقع', 'Voir le contenu du site'],
   ['content.manage', 'content', 'تعديل محتوى الموقع', 'Modifier le contenu du site'],
   ['content.publish', 'content', 'نشر محتوى الموقع', 'Publier le contenu du site'],
+  ['landing.view', 'landing', 'عرض صفحات الهبوط', 'Voir les pages d’atterrissage'],
+  ['landing.manage', 'landing', 'إنشاء وتعديل صفحات الهبوط', 'Créer et modifier les pages d’atterrissage'],
+  ['landing.publish', 'landing', 'نشر صفحات الهبوط وحذفها', 'Publier et supprimer les pages d’atterrissage'],
   ['settings.view', 'settings', 'عرض الإعدادات', 'Voir les paramètres'],
   ['settings.manage', 'settings', 'إدارة الإعدادات', 'Gérer les paramètres'],
   ['audit.view', 'audit', 'عرض سجل التدقيق', 'Voir le journal d’audit'],
@@ -100,7 +103,8 @@ const ROLES = [
     name_ar: 'مسؤول المحتوى', name_fr: 'Responsable de contenu',
     description_ar: 'صفحات الموقع، الخدمات والأسئلة، والمحتوى، دون الحسابات أو البيانات الحساسة.',
     description_fr: 'Pages du site, services, FAQ et contenu, sans comptes ni données sensibles.',
-    perms: ['dashboard.view', 'content.view', 'content.manage', 'content.publish', 'centers.view', 'wilayas.view'],
+    perms: ['dashboard.view', 'content.view', 'content.manage', 'content.publish',
+      'landing.view', 'landing.manage', 'landing.publish', 'centers.view', 'wilayas.view'],
   },
 ];
 

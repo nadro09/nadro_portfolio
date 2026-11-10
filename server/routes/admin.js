@@ -414,6 +414,7 @@ router.use('/centers', require('./admin/directory').centers);
 router.use('/wilayas', require('./admin/directory').wilayas);
 router.use('/users', require('./admin/directory').users);
 router.use('/content', require('./admin/content'));
+router.use('/landing', require('./admin/landing'));
 router.use('/messages', require('./admin/messaging'));
 
 module.exports = router;

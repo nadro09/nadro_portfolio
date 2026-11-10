@@ -4,6 +4,7 @@ const { pool } = require('../db');
 const { t } = require('../i18n');
 const H = require('../helpers');
 const ai = require('../ai');
+const { renderLandingPage } = require('../landing');
 
 const router = express.Router();
 
@@ -474,6 +475,28 @@ router.post('/api/assistant', assistantThrottle, async (req, res) => {
     }
     return res.status(unavailable ? 503 : 502).json({ error: unavailable ? 'unavailable' : 'provider_error' });
   }
+});
+
+// Published advertising landing pages, each on its own public link: /lp/<slug>.
+router.get('/lp/:slug', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM landing_pages
+       WHERE slug = $1 AND status = 'published' AND deleted_at IS NULL`,
+      [String(req.params.slug)]
+    );
+    if (!rows.length) {
+      return res.status(404).render('errors/404', { title: res.locals.t('not_found_title') });
+    }
+    const page = rows[0];
+    const [logoRow] = await Promise.all([
+      pool.query("SELECT value_ar FROM website_content WHERE key = 'site_logo'"),
+      pool.query('UPDATE landing_pages SET views = views + 1 WHERE id = $1', [page.id]),
+    ]);
+    const logo = (logoRow.rows[0] && logoRow.rows[0].value_ar) || undefined;
+    res.set('Cache-Control', 'no-store');
+    res.type('html').send(renderLandingPage(page, { logo, brand: res.locals.brand }));
+  } catch (err) { next(err); }
 });
 
 module.exports = router;

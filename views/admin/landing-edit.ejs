@@ -1,0 +1,179 @@
+<%- include('../partials/admin/head', { title: title, active: 'landing' }) %>
+<%
+  const formAction = isNew ? '/admin/landing' : ('/admin/landing/' + page.id);
+  const published = !isNew && page.status === 'published';
+%>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <a class="btn btn-ghost btn-sm" href="/admin/landing"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('landing_title') %></a>
+  <span style="flex:1"></span>
+  <% if (!isNew) { %>
+    <a class="btn btn-ghost btn-sm" href="/admin/landing/<%= page.id %>/preview" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'eye' }) %><%= t('landing_preview') %></a>
+  <% } %>
+</div>
+
+<div class="grid-main-side">
+  <form method="post" action="<%= formAction %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('landing_page_title') %></h2></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="title_ar"><%= t('landing_page_title') %> (AR)</label>
+            <input id="title_ar" name="title_ar" dir="rtl" value="<%= isNew ? '' : (page.title_ar || '') %>" required>
+          </div>
+          <div class="field">
+            <label for="title_fr"><%= t('landing_page_title') %> (FR)</label>
+            <input id="title_fr" name="title_fr" dir="ltr" value="<%= isNew ? '' : (page.title_fr || '') %>">
+          </div>
+          <div class="field full">
+            <label for="slug"><%= t('landing_slug') %></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="cell-sub" dir="ltr">/lp/</span>
+              <input id="slug" name="slug" dir="ltr" value="<%= isNew ? '' : page.slug %>" placeholder="promo-2026" required style="flex:1">
+            </div>
+            <span class="hint"><%= t('landing_slug_hint') %></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <div class="panel-head">
+        <h2><%= t('landing_code') %></h2>
+        <div class="spacer"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" type="button" data-snippet="hero"><%= t('landing_insert_hero') %></button>
+          <button class="btn btn-ghost btn-sm" type="button" data-snippet="cta"><%= t('landing_insert_cta') %></button>
+          <button class="btn btn-ghost btn-sm" type="button" data-snippet="benefits"><%= t('landing_insert_benefits') %></button>
+          <button class="btn btn-ghost btn-sm" type="button" data-snippet="contact"><%= t('landing_insert_contact') %></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="field">
+          <label for="landingCode" class="sr-only"><%= t('landing_code') %></label>
+          <textarea id="landingCode" name="html" dir="ltr" spellcheck="false" rows="22"
+                    style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;line-height:1.6;min-height:420px;white-space:pre"><%= code %></textarea>
+          <span class="hint"><%= t('landing_code_hint') %></span>
+          <span class="hint" dir="ltr">{{logo}} · {{booking}} · {{home}} · {{year}}</span>
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('save') %></button>
+        </div>
+      </div>
+    </section>
+  </form>
+
+  <aside>
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('status') %></h2></div>
+      <div class="panel-body">
+        <% if (isNew) { %>
+          <p class="cell-sub" style="margin-top:0"><%= t('landing_created') %></p>
+        <% } else { %>
+          <p style="margin-top:0">
+            <span class="badge badge-<%= published ? 'ok' : 'muted' %>"><%= published ? t('published') : t('landing_status_draft') %></span>
+            <span class="cell-sub" style="margin-inline-start:8px"><%= t('landing_views') %>: <%= page.views %></span>
+          </p>
+          <% if (published) { %>
+            <div class="field" style="margin-bottom:12px">
+              <label><%= t('landing_url') %></label>
+              <div style="display:flex;gap:6px">
+                <input value="<%= url %>" dir="ltr" readonly onclick="this.select()" style="flex:1">
+                <button class="btn btn-ghost btn-sm" type="button" id="copyUrl" data-url="<%= url %>"><%= t('landing_copy_url') %></button>
+              </div>
+            </div>
+          <% } else { %>
+            <p class="cell-sub"><%= t('landing_publish_hint') %></p>
+          <% } %>
+
+          <% if (can('landing.publish')) { %>
+            <% if (published) { %>
+              <form method="post" action="/admin/landing/<%= page.id %>/unpublish">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-ghost btn-block" type="submit"><%= t('landing_unpublish') %></button>
+              </form>
+            <% } else { %>
+              <form method="post" action="/admin/landing/<%= page.id %>/publish">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-primary btn-block" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('landing_publish') %></button>
+              </form>
+            <% } %>
+          <% } else { %>
+            <p class="cell-sub"><%= t('landing_publish_hint') %></p>
+          <% } %>
+        <% } %>
+      </div>
+    </section>
+
+    <% if (!isNew && can('landing.publish')) { %>
+      <section class="panel" style="margin-top:16px">
+        <div class="panel-body">
+          <form method="post" action="/admin/landing/<%= page.id %>/delete"
+                onsubmit="return confirm('<%= lang === 'fr' ? 'Supprimer cette page ?' : 'هل تريد حذف هذه الصفحة؟' %>')">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-danger btn-block" type="submit"><%- include('../partials/icon', { name: 'trash' }) %><%= t('delete') %></button>
+          </form>
+        </div>
+      </section>
+    <% } %>
+  </aside>
+</div>
+
+<script>
+(function () {
+  var ta = document.getElementById('landingCode');
+  if (!ta) return;
+  var snippets = {
+    hero: '<section style="text-align:center;padding:24px 0 8px">\n'
+      + '  <h1 style="font-size:2rem;margin:0 0 12px;color:#054937">عنوان الإعلان</h1>\n'
+      + '  <p style="font-size:1.05rem;color:#40514c;max-width:620px;margin:0 auto 22px">نص تعريفي قصير يوضح العرض.</p>\n'
+      + '  <a href="{{booking}}" style="display:inline-block;background:#054937;color:#fff;text-decoration:none;font-weight:700;padding:14px 26px;border-radius:12px">احجز فحص السمع</a>\n'
+      + '</section>\n',
+    cta: '<div style="text-align:center;margin:28px 0">\n'
+      + '  <a href="{{booking}}" style="display:inline-block;background:#16a34a;color:#fff;text-decoration:none;font-weight:700;padding:13px 24px;border-radius:12px">احجز موعدك الآن</a>\n'
+      + '</div>\n',
+    benefits: '<section style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:24px 0">\n'
+      + '  <div style="border:1px solid #e2ece7;border-radius:14px;padding:16px"><strong>فحص دقيق</strong><p style="margin:6px 0 0;color:#546e7a">تقييم سمعي متخصص في مركز قريب منك.</p></div>\n'
+      + '  <div style="border:1px solid #e2ece7;border-radius:14px;padding:16px"><strong>أجهزة مناسبة</strong><p style="margin:6px 0 0;color:#546e7a">حلول سمعية حسب احتياجك وميزانيتك.</p></div>\n'
+      + '  <div style="border:1px solid #e2ece7;border-radius:14px;padding:16px"><strong>مرافقة كاملة</strong><p style="margin:6px 0 0;color:#546e7a">متابعة بعد التركيب والضبط.</p></div>\n'
+      + '</section>\n',
+    contact: '<section style="border-top:1px solid #e2ece7;margin-top:28px;padding-top:18px;font-size:.9rem;color:#40514c">\n'
+      + '  <p style="margin:0 0 6px"><strong>تواصل معنا</strong></p>\n'
+      + '  <p style="margin:0"><a href="{{home}}">الموقع الرسمي AUDIOLEF</a> · <a href="{{booking}}">حجز موعد</a></p>\n'
+      + '</section>\n'
+  };
+  document.querySelectorAll('[data-snippet]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var snippet = snippets[btn.getAttribute('data-snippet')] || '';
+      var start = ta.selectionStart || 0;
+      var end = ta.selectionEnd || 0;
+      ta.value = ta.value.slice(0, start) + snippet + ta.value.slice(end);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + snippet.length;
+    });
+  });
+  var copy = document.getElementById('copyUrl');
+  if (copy) {
+    copy.addEventListener('click', function () {
+      var url = copy.getAttribute('data-url');
+      var done = function () {
+        var label = copy.textContent;
+        copy.textContent = '<%= t('landing_copied') %>';
+        setTimeout(function () { copy.textContent = label; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done, done);
+      } else {
+        var input = copy.previousElementSibling;
+        if (input) { input.select(); document.execCommand('copy'); }
+        done();
+      }
+    });
+  }
+})();
+</script>
+
+<%- include('../partials/admin/foot') %>

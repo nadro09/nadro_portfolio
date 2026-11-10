@@ -1,0 +1,83 @@
+<%- include('../partials/admin/head', { title: t('landing_title'), active: 'landing' }) %>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <strong><%= t('landing_title') %></strong>
+  <span style="flex:1"></span>
+  <% if (can('landing.manage')) { %>
+    <a class="btn btn-primary btn-sm" href="/admin/landing/new"><%- include('../partials/icon', { name: 'plus' }) %><%= t('landing_new') %></a>
+  <% } %>
+</div>
+
+<div class="alert alert-info">
+  <%- include('../partials/icon', { name: 'info' }) %>
+  <span><%= t('landing_intro') %></span>
+</div>
+
+<section class="panel">
+  <div class="panel-body flush">
+    <% if (!pages.length) { %>
+      <div class="empty">
+        <div class="ico"><%- include('../partials/icon', { name: 'file' }) %></div>
+        <%= t('landing_empty') %>
+      </div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th><%= t('landing_page_title') %></th>
+              <th><%= t('landing_slug') %></th>
+              <th><%= t('status') %></th>
+              <th><%= t('landing_views') %></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pages.forEach(function (p) { %>
+              <tr>
+                <td>
+                  <div class="cell-main"><%= lang === 'fr' ? (p.title_fr || p.title_ar) : (p.title_ar || p.title_fr) %></div>
+                  <div class="cell-sub"><%= p.author ? p.author + ' · ' : '' %><%= formatDateTime(p.updated_at) %></div>
+                </td>
+                <td class="nowrap"><span dir="ltr">/lp/<%= p.slug %></span></td>
+                <td>
+                  <span class="badge badge-<%= p.status === 'published' ? 'ok' : 'muted' %>">
+                    <%= p.status === 'published' ? t('published') : t('landing_status_draft') %>
+                  </span>
+                </td>
+                <td><%= p.views %></td>
+                <td>
+                  <div class="actions-cell">
+                    <a class="btn btn-ghost btn-sm" href="/admin/landing/<%= p.id %>"><%- include('../partials/icon', { name: 'edit' }) %><%= t('edit') %></a>
+                    <% if (p.status === 'published') { %>
+                      <a class="btn btn-ghost btn-sm" href="<%= p.url %>" target="_blank" rel="noopener"><%- include('../partials/icon', { name: 'external' }) %><%= t('landing_open') %></a>
+                    <% } %>
+                    <% if (can('landing.publish')) { %>
+                      <% if (p.status === 'published') { %>
+                        <form method="post" action="/admin/landing/<%= p.id %>/unpublish" style="margin:0">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-ghost btn-sm" type="submit"><%= t('landing_unpublish') %></button>
+                        </form>
+                      <% } else { %>
+                        <form method="post" action="/admin/landing/<%= p.id %>/publish" style="margin:0">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-ok btn-sm" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('landing_publish') %></button>
+                        </form>
+                      <% } %>
+                      <form method="post" action="/admin/landing/<%= p.id %>/delete" style="margin:0" onsubmit="return confirm('<%= lang === 'fr' ? 'Supprimer cette page ?' : 'هل تريد حذف هذه الصفحة؟' %>')">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-danger btn-sm" type="submit"><%- include('../partials/icon', { name: 'trash' }) %></button>
+                      </form>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/admin/foot') %>

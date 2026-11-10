@@ -116,6 +116,22 @@ function withLang(pathname, lang) {
   return `${pathname}${sep}lang=${lang}`;
 }
 
+// Personal free-text fields are encrypted in the database, so the audit log
+// must not keep a plain-text copy of them either.
+const SENSITIVE_KEYS = new Set(['notes', 'internal_notes', 'body', 'note', 'password', 'new_password', 'current_password', 'confirm_password']);
+
+function redact(values) {
+  if (!values || typeof values !== 'object') return values;
+  if (Array.isArray(values)) return values.map(redact);
+  const out = {};
+  for (const [key, value] of Object.entries(values)) {
+    out[key] = SENSITIVE_KEYS.has(key) && value !== null && value !== undefined && value !== ''
+      ? '[encrypted]'
+      : (value && typeof value === 'object' ? redact(value) : value);
+  }
+  return out;
+}
+
 async function audit(req, { action, entityType, entityId = null, oldValues = null, newValues = null }) {
   const actor = req.user;
   try {
@@ -128,8 +144,8 @@ async function audit(req, { action, entityType, entityId = null, oldValues = nul
         action,
         entityType,
         entityId === null ? null : String(entityId),
-        oldValues ? JSON.stringify(oldValues) : null,
-        newValues ? JSON.stringify(newValues) : null,
+        oldValues ? JSON.stringify(redact(oldValues)) : null,
+        newValues ? JSON.stringify(redact(newValues)) : null,
         String(req.ip || '').replace('::ffff:', ''),
         String((typeof req.get === 'function' ? req.get('user-agent') : '') || '').slice(0, 300),
       ]

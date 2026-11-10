@@ -99,7 +99,11 @@ function csrfToken(req, res, next) {
 
 function csrfOk(req) {
   const token = (req.body && req.body._csrf) || req.get('x-csrf-token');
-  return Boolean(token && req.session && token === req.session.csrf);
+  const expected = req.session && req.session.csrf;
+  if (!token || !expected) return false;
+  const given = Buffer.from(String(token));
+  const stored = Buffer.from(String(expected));
+  return given.length === stored.length && crypto.timingSafeEqual(given, stored);
 }
 
 function verifyCsrf(req, res, next) {

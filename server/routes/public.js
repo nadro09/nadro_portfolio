@@ -3,6 +3,7 @@ const express = require('express');
 const { pool } = require('../db');
 const { t } = require('../i18n');
 const H = require('../helpers');
+const { encrypt } = require('../crypto');
 const ai = require('../ai');
 const { renderLandingPage } = require('../landing');
 
@@ -258,7 +259,7 @@ router.post('/booking', throttle(8, 10 * 60 * 1000), async (req, res, next) => {
              service_id, preferred_date, preferred_time, notes, status, source)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'new','website') RETURNING id`,
           [reference, customerId, old.full_name, phone, wilayaId, old.city, centerId, serviceId,
-            old.preferred_date, old.preferred_time, old.notes || null]
+            old.preferred_date, old.preferred_time, encrypt(old.notes || null)]
         );
         bookingId = ins.rows[0].id;
       } catch (err) {
@@ -342,7 +343,7 @@ router.post('/contact', throttle(6, 10 * 60 * 1000), async (req, res, next) => {
     const ins = await pool.query(
       `INSERT INTO contact_messages (full_name, phone, email, wilaya_id, subject, body)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-      [old.full_name, H.normalizePhone(old.phone), old.email || null, wilayaId, old.subject, old.body]
+      [old.full_name, H.normalizePhone(old.phone), old.email || null, wilayaId, old.subject, encrypt(old.body)]
     );
     const wilaya = base.wilayas.find((w) => w.id === wilayaId);
     if (base.settings.notify_new_messages !== '0') {

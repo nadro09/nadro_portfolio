@@ -12,6 +12,21 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
+// Rows are decrypted transparently so views and exports only ever see plain
+// text; writes encrypt the sensitive columns themselves (see server/crypto.js).
+const { decryptRow } = require('./crypto');
+const rawQuery = pool.query.bind(pool);
+pool.query = function query(...args) {
+  const result = rawQuery(...args);
+  if (result && typeof result.then === 'function') {
+    return result.then((res) => {
+      if (res && Array.isArray(res.rows)) res.rows.forEach(decryptRow);
+      return res;
+    });
+  }
+  return result;
+};
+
 async function waitForDb(attempts = 40) {
   for (let i = 1; i <= attempts; i += 1) {
     try {

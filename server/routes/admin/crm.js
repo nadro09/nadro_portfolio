@@ -3,6 +3,7 @@ const express = require('express');
 const { pool } = require('../../db');
 const { requirePerm } = require('../../auth');
 const H = require('../../helpers');
+const { encrypt } = require('../../crypto');
 const { MESSAGE_FLOW } = require('../../i18n');
 
 const customers = express.Router();
@@ -75,7 +76,7 @@ customers.post('/', requirePerm('customers.edit'), async (req, res, next) => {
       `INSERT INTO customers (full_name, phone, email, wilaya_id, city, notes, assigned_employee_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
       [fullName, phone, email || null, parseInt(req.body.wilaya_id, 10) || null,
-        String(req.body.city || '').trim() || null, String(req.body.notes || '').trim() || null, req.user.id]
+        String(req.body.city || '').trim() || null, encrypt(String(req.body.notes || '').trim() || null), req.user.id]
     );
     await H.audit(req, { action: 'customer_created', entityType: 'customer', entityId: ins.rows[0].id, newValues: { fullName, phone } });
     req.session.flash = { type: 'success', message: res.locals.t('customer_saved') };
@@ -131,7 +132,7 @@ customers.post('/:id', requirePerm('customers.edit'), loadCustomer, async (req, 
               notes = $7, assigned_employee_id = $8 WHERE id = $1`,
       [req.customer.id, fullName, phone, String(req.body.email || '').trim() || null,
         parseInt(req.body.wilaya_id, 10) || null, String(req.body.city || '').trim() || null,
-        String(req.body.notes || '').trim() || null, parseInt(req.body.assigned_employee_id, 10) || null]
+        encrypt(String(req.body.notes || '').trim() || null), parseInt(req.body.assigned_employee_id, 10) || null]
     );
     await H.audit(req, {
       action: 'customer_updated', entityType: 'customer', entityId: req.customer.id,
@@ -147,7 +148,7 @@ customers.post('/:id/notes', requirePerm('customers.edit'), loadCustomer, async 
   try {
     const body = String(req.body.body || '').trim();
     if (body) {
-      await pool.query('INSERT INTO customer_notes (customer_id, employee_id, body) VALUES ($1,$2,$3)', [req.customer.id, req.user.id, body]);
+      await pool.query('INSERT INTO customer_notes (customer_id, employee_id, body) VALUES ($1,$2,$3)', [req.customer.id, req.user.id, encrypt(body)]);
       await H.audit(req, { action: 'customer_note_added', entityType: 'customer', entityId: req.customer.id });
     }
     res.redirect(`/admin/customers/${req.customer.id}`);

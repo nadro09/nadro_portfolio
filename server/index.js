@@ -27,12 +27,33 @@ app.set('view cache', false);
 app.locals.appName = 'AUDIOLEF';
 app.locals.UPLOAD_DIR = UPLOAD_DIR;
 
+// The sandbox preview renders the app inside an iframe on another origin, so
+// framing is only loosened while BASE44_PREVIEW_MODE=1.
+const PREVIEW_MODE = process.env.BASE44_PREVIEW_MODE === '1';
+
+const cspDirectives = {
+  defaultSrc: ["'self'"],
+  baseUri: ["'self'"],
+  objectSrc: ["'none'"],
+  // The app renders small inline scripts (map, assistant, admin chrome) and
+  // inline <style> blocks generated from the brand settings.
+  scriptSrc: ["'self'", "'unsafe-inline'"],
+  styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+  imgSrc: ["'self'", 'data:', 'blob:'],
+  connectSrc: ["'self'"],
+  frameSrc: ["'self'", 'https://www.youtube.com', 'https://player.vimeo.com'],
+  mediaSrc: ["'self'"],
+  formAction: ["'self'"],
+  frameAncestors: PREVIEW_MODE ? ["'self'", 'https:'] : ["'self'"],
+};
+
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: { useDefaults: false, directives: cspDirectives },
   crossOriginEmbedderPolicy: false,
-  // The sandbox preview renders the app inside an iframe on another origin.
-  frameguard: false,
+  frameguard: PREVIEW_MODE ? false : { action: 'sameorigin' },
   crossOriginResourcePolicy: { policy: 'same-site' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
@@ -40,8 +61,14 @@ app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: 0, etag: 
 
 // Public media (brand images / hero). Internal attachments are served through
 // an authenticated admin route and live outside this public folder.
-app.use('/uploads/avatars', express.static(path.join(UPLOAD_DIR, 'avatars'), { maxAge: '1h' }));
-app.use('/uploads/content', express.static(path.join(UPLOAD_DIR, 'content'), { maxAge: '1h' }));
+// Uploaded files are user-controlled: a strict sandbox policy stops an
+// uploaded SVG from running scripts when someone opens it directly.
+const uploadHeaders = (res) => {
+  res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; sandbox");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+};
+app.use('/uploads/avatars', express.static(path.join(UPLOAD_DIR, 'avatars'), { maxAge: '1h', setHeaders: uploadHeaders }));
+app.use('/uploads/content', express.static(path.join(UPLOAD_DIR, 'content'), { maxAge: '1h', setHeaders: uploadHeaders }));
 
 // Minimal cookie parser (only simple key=value cookies are used).
 app.use((req, _res, next) => {
@@ -71,7 +98,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: 'auto',
     maxAge: 1000 * 60 * 60 * 8,
   },
 }));
@@ -151,6 +178,34 @@ app.use(auth.sessionIdleGuard(settings));
 app.use(auth.verifyCsrf);
 
 app.use('/uploads/attachments', (req, res) => res.status(404).render('errors/404', { title: t(res.locals.lang, 'not_found_title') }));
+
+// Admin screens hold personal data: never cache them and keep them out of
+// search engines.
+app.use('/admin', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  res.set('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
+// Advertising landing pages are authored by the admin (raw HTML/CSS/JS), so
+// they get their own policy instead of the site-wide one.
+app.use((req, res, next) => {
+  if (req.path.startsWith('/lp/')) {
+    res.set('Content-Security-Policy', [
+      "default-src 'self' https: data: blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+      "style-src 'self' 'unsafe-inline' https:",
+      "img-src 'self' https: data: blob:",
+      "font-src 'self' https: data:",
+      "connect-src 'self' https:",
+      "frame-src 'self' https:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https:",
+    ].join('; '));
+  }
+  next();
+});
 
 app.use('/', require('./routes/public'));
 app.use('/admin', require('./routes/auth'));

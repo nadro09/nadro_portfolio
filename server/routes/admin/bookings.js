@@ -3,6 +3,7 @@ const express = require('express');
 const { pool } = require('../../db');
 const { requirePerm } = require('../../auth');
 const H = require('../../helpers');
+const { encrypt } = require('../../crypto');
 const { BOOKING_FLOW } = require('../../i18n');
 
 const router = express.Router();
@@ -215,7 +216,7 @@ async function recordHistory(req, booking, action, oldValue, newValue, note) {
     `INSERT INTO booking_history (booking_id, employee_id, action, old_value, new_value, note)
      VALUES ($1,$2,$3,$4,$5,$6)`,
     [booking.id, req.user.id, action, oldValue === null ? null : String(oldValue),
-      newValue === null ? null : String(newValue), note || null]
+      newValue === null ? null : String(newValue), encrypt(note || null)]
   );
 }
 
@@ -322,8 +323,10 @@ router.post('/:id/notes', requirePerm('bookings.edit'), loadBooking, async (req,
     const notes = String(req.body.internal_notes || '').trim();
     const contactResult = String(req.body.contact_result || '').trim();
     await pool.query('UPDATE bookings SET internal_notes = $2, contact_result = COALESCE(NULLIF($3,\'\'), contact_result) WHERE id = $1',
-      [req.booking.id, notes || null, contactResult]);
-    await recordHistory(req, req.booking, 'notes_updated', req.booking.internal_notes, notes);
+      [req.booking.id, encrypt(notes || null), contactResult]);
+    // The note text stays in the encrypted column only; the history row just
+    // records that the notes changed.
+    await recordHistory(req, req.booking, 'notes_updated', null, null);
     await H.audit(req, {
       action: 'booking_notes_updated', entityType: 'booking', entityId: req.booking.id,
       oldValues: { internal_notes: req.booking.internal_notes }, newValues: { internal_notes: notes, contact_result: contactResult || null },

@@ -5,6 +5,7 @@ const multer = require('multer');
 const { pool } = require('../../db');
 const { requirePerm, verifyCsrfAfterUpload } = require('../../auth');
 const H = require('../../helpers');
+const { encrypt } = require('../../crypto');
 
 const router = express.Router();
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', '..', 'data', 'uploads');
@@ -109,7 +110,7 @@ router.post('/new', upload.single('attachment'), verifyCsrfAfterUpload, async (r
     }
     const msg = await pool.query(
       'INSERT INTO internal_messages (conversation_id, sender_id, body) VALUES ($1,$2,$3) RETURNING id',
-      [convId, req.user.id, body || '📎']
+      [convId, req.user.id, encrypt(body || '📎')]
     );
     if (req.file) await saveAttachment(req, msg.rows[0].id);
     await H.notifyEmployees(participants, {
@@ -200,7 +201,7 @@ router.post('/:id/reply', upload.single('attachment'), verifyCsrfAfterUpload, as
     if (!body && !req.file) return res.redirect(`/admin/messages/${id}`);
     const msg = await pool.query(
       'INSERT INTO internal_messages (conversation_id, sender_id, body) VALUES ($1,$2,$3) RETURNING id',
-      [id, req.user.id, body || '📎']
+      [id, req.user.id, encrypt(body || '📎')]
     );
     if (req.file) await saveAttachment(req, msg.rows[0].id);
     await pool.query('UPDATE internal_conversations SET updated_at = now() WHERE id = $1', [id]);

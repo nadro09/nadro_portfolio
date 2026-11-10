@@ -1,0 +1,12 @@
+<%- include('../partials/public/head', { title: t('rate_limited'), nav: 'home' }) %>
+<section class="section" style="padding-top:64px">
+  <div class="container" style="text-align:center;max-width:640px">
+    <div style="width:82px;height:82px;border-radius:24px;background:#fff6e6;color:#8a5b14;display:grid;place-items:center;margin:0 auto 18px">
+      <div style="width:36px;height:36px"><%- include('../partials/icon', { name: 'clock' }) %></div>
+    </div>
+    <h1 style="color:var(--blue-950)"><%= t('rate_limited') %></h1>
+    <p style="color:var(--muted)"><%= lang === 'ar' ? 'لحماية الخدمة، نحدّ عدد الطلبات المتتالية. يرجى المحاولة بعد بضع دقائق.' : 'Pour protéger le service, le nombre de demandes successives est limité. Réessayez dans quelques minutes.' %></p>
+    <a class="btn btn-primary" href="/?lang=<%= lang %>"><%= t('back_home') %></a>
+  </div>
+</section>
+<%- include('../partials/public/footer') %>

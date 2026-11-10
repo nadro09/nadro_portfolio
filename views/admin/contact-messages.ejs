@@ -1,0 +1,50 @@
+<%- include('../partials/admin/head', { title: t('menu_contact_messages'), active: 'contact-messages' }) %>
+<% const qp = (extra) => {
+     const q = new URLSearchParams();
+     if (filters.q) q.set('q', filters.q);
+     if (filters.status) q.set('status', filters.status);
+     Object.keys(extra || {}).forEach(function (k) { q.set(k, extra[k]); });
+     return q.toString();
+   }; %>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/contact-messages">
+    <div class="field grow"><label for="q"><%= t('search') %></label><input id="q" name="q" value="<%= filters.q || '' %>" placeholder="<%= t('search_placeholder') %>"></div>
+    <div class="field"><label for="status"><%= t('status') %></label>
+      <select id="status" name="status"><option value=""><%= t('all_statuses') %></option>
+        <% statusFlow.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= statusLabel(s) %></option><% }) %>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit"><%= t('filter') %></button>
+    <a class="btn btn-ghost" href="/admin/contact-messages"><%= t('clear_filters') %></a>
+  </form>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('field_full_name') %></th><th><%= t('field_subject') %></th><th><%= t('wilaya') %></th><th><%= t('status') %></th><th><%= t('assigned_to') %></th><th><%= t('created_at') %></th><th></th></tr></thead>
+      <tbody>
+        <% if (!messages.length) { %>
+          <tr><td colspan="7"><div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'message' }) %></div><%= t('no_messages') %></div></td></tr>
+        <% } %>
+        <% messages.forEach(function (m) { %>
+          <tr>
+            <td><div class="cell-main"><%= m.full_name %></div><div class="cell-sub" dir="ltr"><%= m.phone %></div></td>
+            <td><%= m.subject %><% if (m.is_demo) { %> <span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></td>
+            <td><%= lang === 'fr' ? (m.wilaya_fr || '—') : (m.wilaya_ar || '—') %></td>
+            <td><span class="badge badge-<%= statusMeta[m.status] ? statusMeta[m.status].tone : 'muted' %>"><%= statusLabel(m.status) %></span></td>
+            <td><%= m.assigned_name || t('unassigned') %></td>
+            <td class="nowrap"><%= formatDateTime(m.created_at) %></td>
+            <td><a class="btn btn-ghost btn-sm" href="/admin/contact-messages/<%= m.id %>"><%= t('view') %></a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span class="info"><%= t('page') %> <%= pager.page %> <%= t('of') %> <%= pager.pages %> · <%= pager.total %> <%= t('results') %></span>
+    <a class="page-link <%= pager.page <= 1 ? 'disabled' : '' %>" href="/admin/contact-messages?<%= qp({ page: pager.page - 1 }) %>"><%= t('prev') %></a>
+    <a class="page-link <%= pager.page >= pager.pages ? 'disabled' : '' %>" href="/admin/contact-messages?<%= qp({ page: pager.page + 1 }) %>"><%= t('next') %></a>
+  </div>
+</section>
+
+<%- include('../partials/admin/foot') %>

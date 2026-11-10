@@ -1,0 +1,88 @@
+<%- include('../partials/admin/head', { title: t('menu_profile'), active: 'profile' }) %>
+
+<div class="grid-main-side">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('profile') %></h2></div>
+      <div class="panel-body">
+        <% if (errors && errors.length) { %>
+          <div class="alert alert-error"><span><%= errors[0].message %></span></div>
+        <% } %>
+        <form method="post" action="/admin/profile">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-grid">
+            <div class="field"><label for="full_name"><%= t('field_full_name') %></label><input id="full_name" name="full_name" value="<%= currentUser.full_name %>" required></div>
+            <div class="field"><label for="email"><%= t('field_email') %></label><input id="email" name="email" type="email" value="<%= currentUser.email %>" dir="ltr" required></div>
+            <div class="field"><label for="phone"><%= t('field_phone') %></label><input id="phone" name="phone" value="<%= currentUser.phone || '' %>" dir="ltr"></div>
+            <div class="field"><label for="language_pref"><%= lang === 'ar' ? 'لغة الواجهة' : 'Langue de l’interface' %></label>
+              <select id="language_pref" name="language_pref">
+                <option value="ar" <%= currentUser.language_pref !== 'fr' ? 'selected' : '' %>>العربية</option>
+                <option value="fr" <%= currentUser.language_pref === 'fr' ? 'selected' : '' %>>Français</option>
+              </select>
+            </div>
+            <div class="field"><label for="job_title_ar"><%= t('job_title') %> (AR)</label><input id="job_title_ar" name="job_title_ar" value="<%= currentUser.job_title_ar || '' %>" dir="rtl"></div>
+            <div class="field"><label for="job_title_fr"><%= t('job_title') %> (FR)</label><input id="job_title_fr" name="job_title_fr" value="<%= currentUser.job_title_fr || '' %>" dir="ltr"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><%= t('save_changes') %></button>
+            <a class="btn btn-ghost" href="/admin/change-password"><%- include('../partials/icon', { name: 'key' }) %><%= t('change_password') %></a>
+          </div>
+        </form>
+        <p class="cell-sub" style="margin-top:14px"><%= t('admin_profile_note') %></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('latest_activity') %></h2></div>
+      <div class="panel-body">
+        <% if (!activity.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="timeline">
+            <% activity.forEach(function (a) { %>
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="d"><%= a.action %> · <%= a.entity_type %></div>
+                  <div class="t"><%= formatDateTime(a.created_at) %></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('avatar') %></h2></div>
+      <div class="panel-body" style="text-align:center">
+        <span class="user-avatar" style="width:92px;height:92px;border-radius:24px;font-size:2rem;margin:0 auto 12px">
+          <% if (currentUser.avatar_path) { %><img src="<%= currentUser.avatar_path %>" alt=""><% } else { %><%= currentUser.full_name.trim().charAt(0) %><% } %>
+        </span>
+        <form method="post" action="/admin/profile/avatar" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="field" style="margin-bottom:10px"><input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" required></div>
+          <button class="btn btn-ghost btn-block" type="submit"><%= t('save') %></button>
+        </form>
+        <p class="cell-sub" style="margin-top:8px">JPG · PNG · WEBP — 5 MB</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('details') %></h2></div>
+      <div class="panel-body">
+        <div class="detail-list">
+          <div><span><%= t('username') %></span><span dir="ltr"><%= currentUser.username %></span></div>
+          <div><span><%= t('center') %></span><span><%= lang === 'fr' ? (currentUser.center_name_fr || '—') : (currentUser.center_name_ar || '—') %></span></div>
+          <div><span><%= t('roles') %></span><span><%= (userRoleNames || []).map(function (r) { return lang === 'fr' ? r.name_fr : r.name_ar; }).join('، ') || '—' %></span></div>
+          <div><span><%= t('last_login') %></span><span><%= currentUser.last_login_at ? formatDateTime(currentUser.last_login_at) : '—' %></span></div>
+          <div><span><%= t('joined_at') %></span><span><%= formatDate(currentUser.created_at) %></span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

@@ -1,0 +1,23 @@
+<%- include('../partials/public/head', { title: docKey === 'privacy_policy' ? t('privacy') : t('terms'), nav: 'legal' }) %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= docKey === 'privacy_policy' ? t('privacy') : t('terms') %></span></div>
+    <h1><%= docKey === 'privacy_policy' ? t('privacy') : t('terms') %></h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="prose">
+      <% (c(docKey) || '').split(/\n\s*\n/).forEach(function (para) { %>
+        <p><%= para %></p>
+      <% }) %>
+    </div>
+    <p style="margin-top:28px;color:var(--muted);font-size:.85rem">
+      <%= lang === 'ar' ? 'آخر تحديث:' : 'Dernière mise à jour :' %> <%= new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Algiers' }).format(new Date()) %>
+    </p>
+  </div>
+</section>
+
+<%- include('../partials/public/footer') %>

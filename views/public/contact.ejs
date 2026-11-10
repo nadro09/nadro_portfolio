@@ -1,0 +1,102 @@
+<%- include('../partials/public/head', { title: t('nav_contact'), nav: 'contact' }) %>
+<% const err = (f) => (errors || []).find((e) => e.field === f); %>
+<% const val = (f) => (old && old[f] !== undefined && old[f] !== null) ? String(old[f]) : ''; %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= t('nav_contact') %></span></div>
+    <h1><%= c('contact_title') %></h1>
+    <p><%= c('contact_intro') %></p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="container" style="display:grid;grid-template-columns:1.35fr .65fr;gap:30px;align-items:start" data-contact-grid>
+    <form class="form-card" method="post" action="/contact?lang=<%= lang %>" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <h2 style="font-size:1.15rem"><%= t('contact_form_title') %></h2>
+
+      <% if (sent) { %>
+        <div class="alert alert-success"><%- include('../partials/icon', { name: 'check-circle' }) %><span><%= t('contact_success') %></span></div>
+      <% } %>
+      <% if (errors && errors.length) { %>
+        <div class="errors-list" role="alert">
+          <strong><%= t('form_errors') %></strong>
+          <ul style="margin:6px 0 0"><% errors.forEach(function (e) { %><li><%= e.message %></li><% }) %></ul>
+        </div>
+      <% } %>
+
+      <div class="form-grid">
+        <div class="field <%= err('full_name') ? 'has-error' : '' %>">
+          <label for="full_name"><%= t('field_full_name') %> <span class="req">*</span></label>
+          <input id="full_name" name="full_name" value="<%= val('full_name') %>" autocomplete="name" required>
+          <% if (err('full_name')) { %><span class="error"><%= err('full_name').message %></span><% } %>
+        </div>
+        <div class="field <%= err('phone') ? 'has-error' : '' %>">
+          <label for="phone"><%= t('field_phone') %> <span class="req">*</span></label>
+          <input id="phone" name="phone" type="tel" value="<%= val('phone') %>" placeholder="+213 ___ ___ ___" required dir="ltr">
+          <% if (err('phone')) { %><span class="error"><%= err('phone').message %></span><% } %>
+        </div>
+        <div class="field <%= err('email') ? 'has-error' : '' %>">
+          <label for="email"><%= t('field_email') %></label>
+          <input id="email" name="email" type="email" value="<%= val('email') %>" dir="ltr">
+          <% if (err('email')) { %><span class="error"><%= err('email').message %></span><% } %>
+        </div>
+        <div class="field">
+          <label for="wilaya_id"><%= t('field_wilaya') %></label>
+          <select id="wilaya_id" name="wilaya_id">
+            <option value=""><%= t('select_placeholder') %></option>
+            <% wilayas.forEach(function (w) { %>
+              <option value="<%= w.id %>" <%= val('wilaya_id') === String(w.id) ? 'selected' : '' %>><%= w.id %> — <%= lang === 'fr' ? w.name_fr : w.name_ar %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field full <%= err('subject') ? 'has-error' : '' %>">
+          <label for="subject"><%= t('field_subject') %> <span class="req">*</span></label>
+          <input id="subject" name="subject" value="<%= val('subject') %>" required>
+          <% if (err('subject')) { %><span class="error"><%= err('subject').message %></span><% } %>
+        </div>
+        <div class="field full <%= err('body') ? 'has-error' : '' %>">
+          <label for="body"><%= t('field_message') %> <span class="req">*</span></label>
+          <textarea id="body" name="body" required><%= val('body') %></textarea>
+          <% if (err('body')) { %><span class="error"><%= err('body').message %></span><% } %>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'send' }) %><%= t('submit_contact') %></button>
+        <span class="hint" style="color:var(--muted);font-size:.8rem"><%= t('field_consent').split('.')[0] %></span>
+      </div>
+    </form>
+
+    <aside class="form-aside">
+      <div class="aside-card">
+        <h3><%= t('contact_phones') %></h3>
+        <% ['phone_primary', 'phone_secondary', 'phone_tertiary'].forEach(function (key) { %>
+          <% if (c(key)) { %>
+            <a href="tel:<%= c(key).replace(/\s/g,'') %>" style="display:flex;gap:8px;align-items:center;margin-bottom:10px;font-weight:700" dir="ltr">
+              <span style="color:var(--blue-600)"><%- include('../partials/icon', { name: 'phone' }) %></span><%= c(key) %>
+            </a>
+          <% } %>
+        <% }) %>
+        <% if (c('contact_email')) { %>
+          <a href="mailto:<%= c('contact_email') %>" style="display:flex;gap:8px;align-items:center;font-weight:700" dir="ltr">
+            <span style="color:var(--blue-600)"><%- include('../partials/icon', { name: 'mail' }) %></span><%= c('contact_email') %>
+          </a>
+        <% } %>
+      </div>
+      <div class="aside-card">
+        <h3><%= lang === 'ar' ? 'أوقات العمل' : 'Horaires' %></h3>
+        <p style="color:var(--muted);font-size:.9rem;margin:0"><%= lang === 'fr' ? (settings.working_hours_fr || settings.working_hours_ar) : settings.working_hours_ar %></p>
+      </div>
+      <div class="aside-card">
+        <h3><%= t('nav_book') %></h3>
+        <p style="color:var(--muted);font-size:.88rem"><%= c('booking_note') %></p>
+        <a class="btn btn-primary btn-block" href="/booking?lang=<%= lang %>"><%- include('../partials/icon', { name: 'calendar' }) %><%= t('hero_cta_book') %></a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>@media (max-width: 900px) { [data-contact-grid] { grid-template-columns: 1fr !important; } }</style>
+
+<%- include('../partials/public/footer') %>

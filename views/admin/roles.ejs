@@ -1,0 +1,47 @@
+<%- include('../partials/admin/head', { title: t('roles'), active: 'users' }) %>
+<% const byCategory = {};
+   permissions.forEach(function (p) { (byCategory[p.category] ||= []).push(p); }); %>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <a class="btn btn-ghost btn-sm" href="/admin/users"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('users') %></a>
+  <strong><%= t('roles') %> &amp; <%= t('permissions') %></strong>
+</div>
+
+<div class="alert alert-info"><%- include('../partials/icon', { name: 'shield' }) %><span><%= lang === 'ar' ? 'الصلاحيات تُتحقق على الخادم في كل طلب، ولا يعتمد الوصول على إخفاء الأزرار. تغيير صلاحيات دور يؤثر مباشرة على أعضائه.' : 'Les permissions sont vérifiées côté serveur à chaque requête. Modifier un rôle affecte immédiatement ses membres.' %></span></div>
+
+<div class="stack">
+  <% roles.forEach(function (r) { %>
+    <section class="panel">
+      <div class="panel-head">
+        <h2><%= lang === 'fr' ? r.name_fr : r.name_ar %></h2>
+        <span class="spacer"></span>
+        <span class="cell-sub"><%= lang === 'fr' ? (r.description_fr || '') : (r.description_ar || '') %></span>
+      </div>
+      <form method="post" action="/admin/users/roles/<%= r.id %>">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="panel-body">
+          <% if (r.key === 'super_admin') { %>
+            <div class="alert alert-warning" style="margin-bottom:0"><%- include('../partials/icon', { name: 'lock' }) %><span><%= lang === 'ar' ? 'دور المدير الأعلى محمي ولا يمكن تعديل صلاحياته من الواجهة.' : 'Le rôle super administrateur est protégé ; ses permissions ne peuvent pas être modifiées ici.' %></span></div>
+          <% } else { %>
+            <% Object.keys(byCategory).forEach(function (cat) { %>
+              <fieldset>
+                <legend><%= cat %></legend>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px">
+                  <% byCategory[cat].forEach(function (p) { %>
+                    <label class="check">
+                      <input type="checkbox" name="permissions" value="<%= p.key %>" <%= (byRole[r.id] || []).includes(p.key) ? 'checked' : '' %>>
+                      <span><%= lang === 'fr' ? p.name_fr : p.name_ar %> <span class="hint" dir="ltr">(<%= p.key %>)</span></span>
+                    </label>
+                  <% }) %>
+                </div>
+              </fieldset>
+            <% }) %>
+            <div class="form-actions"><button class="btn btn-primary" type="submit"><%= t('save') %></button></div>
+          <% } %>
+        </div>
+      </form>
+    </section>
+  <% }) %>
+</div>
+
+<%- include('../partials/admin/foot') %>

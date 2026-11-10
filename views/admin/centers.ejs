@@ -1,0 +1,56 @@
+<%- include('../partials/admin/head', { title: t('centers_manage'), active: 'centers' }) %>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/centers">
+    <div class="field grow"><label for="q"><%= t('search') %></label><input id="q" name="q" value="<%= filters.q || '' %>" placeholder="<%= t('search') %>"></div>
+    <div class="field"><label for="wilaya"><%= t('wilaya') %></label>
+      <select id="wilaya" name="wilaya"><option value=""><%= t('all') %></option>
+        <% wilayas.forEach(function (w) { %><option value="<%= w.id %>" <%= String(filters.wilaya) === String(w.id) ? 'selected' : '' %>><%= lang === 'fr' ? w.name_fr : w.name_ar %></option><% }) %>
+      </select>
+    </div>
+    <div class="field"><label for="status"><%= t('status') %></label>
+      <select id="status" name="status">
+        <option value=""><%= t('all') %></option>
+        <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>><%= t('center_status_active') %></option>
+        <option value="inactive" <%= filters.status === 'inactive' ? 'selected' : '' %>><%= t('center_status_inactive') %></option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit"><%= t('filter') %></button>
+    <a class="btn btn-ghost" href="/admin/centers"><%= t('clear_filters') %></a>
+    <% if (can('centers.manage')) { %><a class="btn btn-primary" href="/admin/centers/new"><%- include('../partials/icon', { name: 'plus' }) %><%= t('add_center') %></a><% } %>
+  </form>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('center') %></th><th><%= t('wilaya') %></th><th><%= t('center_phone') %></th><th><%= t('center_staff') %></th><th><%= t('bookings_count') %></th><th><%= t('status') %></th><th></th></tr></thead>
+      <tbody>
+        <% if (!centers.length) { %>
+          <tr><td colspan="7"><div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'building' }) %></div><%= t('no_results') %></div></td></tr>
+        <% } %>
+        <% centers.forEach(function (c) { %>
+          <tr>
+            <td><div class="cell-main"><%= lang === 'fr' ? c.name_fr : c.name_ar %></div><div class="cell-sub"><%= c.code %> · <%= lang === 'fr' ? c.city_fr : c.city_ar %><% if (c.is_demo) { %> · <span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></div></td>
+            <td><%= lang === 'fr' ? c.wilaya_fr : c.wilaya_ar %></td>
+            <td dir="ltr"><%= c.phone_primary || '—' %></td>
+            <td><%= c.staff_count %></td>
+            <td><%= c.bookings_count %></td>
+            <td><span class="badge badge-<%= c.is_active ? 'ok' : 'muted' %>"><%= c.is_active ? t('center_status_active') : t('center_status_inactive') %></span></td>
+            <td class="actions-cell">
+              <a class="btn btn-ghost btn-sm" href="/admin/centers/<%= c.id %>"><%= t('view') %></a>
+              <% if (can('centers.manage')) { %>
+                <a class="btn btn-ghost btn-sm" href="/admin/centers/<%= c.id %>/edit"><%= t('edit') %></a>
+                <form method="post" action="/admin/centers/<%= c.id %>/toggle" data-confirm="<%= t('confirm_status_text') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-ghost btn-sm" type="submit"><%= c.is_active ? t('deactivate') : t('activate') %></button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span class="info"><%= centers.length %> <%= t('results') %></span></div>
+</section>
+
+<%- include('../partials/admin/foot') %>

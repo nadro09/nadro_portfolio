@@ -1,0 +1,150 @@
+<%- include('../partials/public/head', { title: t('book_title'), nav: 'booking' }) %>
+<% const err = (f) => (errors || []).find((e) => e.field === f); %>
+<% const val = (f) => (old && old[f] !== undefined && old[f] !== null) ? String(old[f]) : ''; %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= t('book_title') %></span></div>
+    <h1><%= t('book_title') %></h1>
+    <p><%= t('book_intro') %></p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px">
+  <div class="container" style="display:grid;grid-template-columns:1.4fr .6fr;gap:30px;align-items:start" data-book-grid>
+    <form class="form-card" method="post" action="/booking?lang=<%= lang %>" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <% if (errors && errors.length) { %>
+        <div class="errors-list" role="alert">
+          <strong><%= t('form_errors') %></strong>
+          <ul style="margin:6px 0 0">
+            <% errors.forEach(function (e) { %><li><%= e.message %></li><% }) %>
+          </ul>
+        </div>
+      <% } %>
+
+      <div class="form-grid">
+        <div class="field <%= err('full_name') ? 'has-error' : '' %>">
+          <label for="full_name"><%= t('field_full_name') %> <span class="req">*</span></label>
+          <input id="full_name" name="full_name" autocomplete="name" value="<%= val('full_name') %>" required>
+          <% if (err('full_name')) { %><span class="error"><%= err('full_name').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('phone') ? 'has-error' : '' %>">
+          <label for="phone"><%= t('field_phone') %> <span class="req">*</span></label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+213 ___ ___ ___" value="<%= val('phone') %>" required dir="ltr">
+          <% if (err('phone')) { %><span class="error"><%= err('phone').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('email') ? 'has-error' : '' %>">
+          <label for="email"><%= t('field_email') %></label>
+          <input id="email" name="email" type="email" autocomplete="email" value="<%= val('email') %>" dir="ltr">
+          <% if (err('email')) { %><span class="error"><%= err('email').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('wilaya_id') ? 'has-error' : '' %>">
+          <label for="wilaya_id"><%= t('field_wilaya') %> <span class="req">*</span></label>
+          <select id="wilaya_id" name="wilaya_id" required data-booking-wilaya>
+            <option value=""><%= t('select_placeholder') %></option>
+            <% wilayas.forEach(function (w) { %>
+              <option value="<%= w.id %>" <%= val('wilaya_id') === String(w.id) ? 'selected' : '' %>><%= w.id %> — <%= lang === 'fr' ? w.name_fr : w.name_ar %></option>
+            <% }) %>
+          </select>
+          <% if (err('wilaya_id')) { %><span class="error"><%= err('wilaya_id').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('city') ? 'has-error' : '' %>">
+          <label for="city"><%= t('field_city') %> <span class="req">*</span></label>
+          <input id="city" name="city" autocomplete="address-level2" value="<%= val('city') %>" required>
+          <% if (err('city')) { %><span class="error"><%= err('city').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('center_id') ? 'has-error' : '' %>">
+          <label for="center_id"><%= t('field_center') %></label>
+          <select id="center_id" name="center_id" data-booking-center>
+            <option value=""><%= t('booking_no_center') %></option>
+            <% centers.forEach(function (c) { %>
+              <option value="<%= c.id %>" data-wilaya="<%= c.wilaya_id %>" <%= val('center_id') === String(c.id) ? 'selected' : '' %>>
+                <%= lang === 'fr' ? c.name_fr : c.name_ar %> — <%= lang === 'fr' ? c.wilaya_name_fr : c.wilaya_name_ar %>
+              </option>
+            <% }) %>
+          </select>
+          <% if (err('center_id')) { %><span class="error"><%= err('center_id').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('service_id') ? 'has-error' : '' %>">
+          <label for="service_id"><%= t('field_service') %> <span class="req">*</span></label>
+          <select id="service_id" name="service_id" required>
+            <option value=""><%= t('select_placeholder') %></option>
+            <% services.forEach(function (s) { %>
+              <option value="<%= s.id %>" <%= val('service_id') === String(s.id) ? 'selected' : '' %>><%= lang === 'fr' ? s.name_fr : s.name_ar %></option>
+            <% }) %>
+          </select>
+          <% if (err('service_id')) { %><span class="error"><%= err('service_id').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('preferred_date') ? 'has-error' : '' %>">
+          <label for="preferred_date"><%= t('field_date') %> <span class="req">*</span></label>
+          <input id="preferred_date" name="preferred_date" type="date" value="<%= val('preferred_date') %>" required data-min-today>
+          <% if (err('preferred_date')) { %><span class="error"><%= err('preferred_date').message %></span><% } %>
+        </div>
+
+        <div class="field <%= err('preferred_time') ? 'has-error' : '' %>">
+          <label for="preferred_time"><%= t('field_time') %> <span class="req">*</span></label>
+          <input id="preferred_time" name="preferred_time" type="time" min="08:00" max="18:00" step="900" value="<%= val('preferred_time') %>" required>
+          <% if (err('preferred_time')) { %><span class="error"><%= err('preferred_time').message %></span><% } %>
+        </div>
+
+        <div class="field full">
+          <label for="notes"><%= t('field_notes') %></label>
+          <textarea id="notes" name="notes" placeholder="<%= lang === 'ar' ? 'مثال: أفضل المواعيد صباحًا، أو ملاحظة عن الوضع الحالي (دون معلومات طبية حساسة).' : 'Ex. : je préfère le matin, ou une précision sur la situation (sans données médicales sensibles).' %>"><%= val('notes') %></textarea>
+          <span class="hint"><%= lang === 'ar' ? 'لا تُدرج معلومات طبية حساسة في هذا الحقل.' : 'N’inscrivez pas de données médicales sensibles dans ce champ.' %></span>
+        </div>
+
+        <div class="field full <%= err('consent') ? 'has-error' : '' %>">
+          <label class="checkbox-row" for="consent">
+            <input id="consent" name="consent" type="checkbox" <%= old && old.consent === 'on' ? 'checked' : '' %>>
+            <span><%= t('field_consent') %> <a href="/privacy?lang=<%= lang %>" target="_blank"><%= t('privacy') %></a></span>
+          </label>
+          <% if (err('consent')) { %><span class="error"><%= err('consent').message %></span><% } %>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'send' }) %><%= t('submit_booking') %></button>
+        <a class="btn btn-ghost" href="/?lang=<%= lang %>"><%= t('cancel') %></a>
+      </div>
+    </form>
+
+    <aside class="form-aside">
+      <div class="aside-card">
+        <h3><%= t('booking_note_title') %></h3>
+        <p style="color:var(--muted);font-size:.88rem"><%= c('booking_note') %></p>
+      </div>
+      <div class="aside-card">
+        <h3><%= t('nav_how') %></h3>
+        <ul>
+          <li><%= c('step1_title') %></li>
+          <li><%= c('step2_title') %></li>
+          <li><%= c('step3_title') %></li>
+          <li><%= c('step4_title') %></li>
+        </ul>
+      </div>
+      <div class="aside-card">
+        <h3><%= t('contact_phones') %></h3>
+        <% ['phone_primary', 'phone_secondary', 'phone_tertiary'].forEach(function (key) { %>
+          <% if (c(key)) { %>
+            <a href="tel:<%= c(key).replace(/\s/g,'') %>" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;font-weight:700" dir="ltr">
+              <span style="color:var(--blue-600)"><%- include('../partials/icon', { name: 'phone' }) %></span><%= c(key) %>
+            </a>
+          <% } %>
+        <% }) %>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>@media (max-width: 900px) { [data-book-grid] { grid-template-columns: 1fr !important; } }</style>
+
+<%- include('../partials/public/footer') %>

@@ -1,0 +1,35 @@
+<%- include('../partials/public/head', { title: t('booking_success'), nav: 'booking' }) %>
+
+<section class="section" style="padding-top:56px">
+  <div class="container">
+    <div class="card success-card" style="padding:38px">
+      <div class="success-icon"><%- include('../partials/icon', { name: 'check-circle' }) %></div>
+      <h1 style="font-size:1.6rem;color:var(--blue-950)"><%= t('booking_success') %></h1>
+      <p style="color:var(--muted)"><%= t('booking_success_text') %></p>
+      <div class="ref-box">
+        <span><%= t('reference') %></span>
+        <strong dir="ltr"><%= booking.reference %></strong>
+      </div>
+      <div class="summary-list">
+        <div><span><%= t('field_full_name') %></span><span><%= booking.customer_name %></span></div>
+        <div><span><%= t('field_service') %></span><span><%= lang === 'fr' ? (booking.service_fr || '—') : (booking.service_ar || '—') %></span></div>
+        <div><span><%= t('field_center') %></span><span><%= lang === 'fr' ? (booking.center_fr || t('booking_no_center')) : (booking.center_ar || t('booking_no_center')) %></span></div>
+        <div><span><%= t('field_date') %></span><span><%= formatIsoDate(booking.preferred_date) %></span></div>
+        <div><span><%= t('field_time') %></span><span dir="ltr"><%= booking.preferred_time || '—' %></span></div>
+        <div><span><%= t('status') %></span><span><span class="badge badge-ok"><%= statusLabel(booking.status) %></span></span></div>
+      </div>
+      <div class="notice" style="text-align:start">
+        <%- include('../partials/icon', { name: 'alert' }) %>
+        <div><%= c('booking_note') %></div>
+      </div>
+      <div class="form-actions" style="justify-content:center">
+        <a class="btn btn-primary" href="/?lang=<%= lang %>"><%= t('nav_home') %></a>
+        <% if (c('phone_primary')) { %>
+          <a class="btn btn-ghost" href="tel:<%= c('phone_primary').replace(/\s/g,'') %>"><%- include('../partials/icon', { name: 'phone' }) %><span dir="ltr"><%= c('phone_primary') %></span></a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/public/footer') %>

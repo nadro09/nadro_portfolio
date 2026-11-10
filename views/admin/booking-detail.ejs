@@ -1,0 +1,192 @@
+<%- include('../partials/admin/head', { title: booking.reference, active: 'bookings' }) %>
+
+<div class="hero-mini" style="margin-bottom:18px">
+  <a class="btn btn-ghost btn-sm" href="/admin/bookings"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <div>
+    <strong style="font-size:1.05rem"><%= booking.customer_name %></strong>
+    <div class="cell-sub"><span dir="ltr"><%= booking.reference %></span> · <%= formatDateTime(booking.created_at) %> <% if (booking.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></div>
+  </div>
+  <span class="spacer" style="flex:1"></span>
+  <span class="badge badge-<%= statusMeta[booking.status] ? statusMeta[booking.status].tone : 'muted' %>" style="font-size:.82rem;padding:6px 12px"><%= statusLabel(booking.status) %></span>
+  <a class="btn btn-ghost btn-sm" target="_blank" href="/admin/bookings/<%= booking.id %>/print"><%- include('../partials/icon', { name: 'print' }) %><%= t('print') %></a>
+  <% if (booking.customer_id) { %><a class="btn btn-ghost btn-sm" href="/admin/customers/<%= booking.customer_id %>"><%- include('../partials/icon', { name: 'user' }) %><%= t('customer_file') %></a><% } %>
+</div>
+
+<div class="detail-grid">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('details') %></h2></div>
+      <div class="panel-body">
+        <div class="detail-list">
+          <div><span><%= t('field_full_name') %></span><span><%= booking.customer_name %></span></div>
+          <div><span><%= t('field_phone') %></span><span dir="ltr"><%= booking.phone %></span></div>
+          <div><span><%= t('field_wilaya') %></span><span><%= lang === 'fr' ? (booking.wilaya_fr || '—') : (booking.wilaya_ar || '—') %> — <%= booking.city || '' %></span></div>
+          <div><span><%= t('service') %></span><span><%= lang === 'fr' ? (booking.service_fr || '—') : (booking.service_ar || '—') %></span></div>
+          <div><span><%= t('center') %></span><span><%= lang === 'fr' ? (booking.center_fr || '—') : (booking.center_ar || '—') %></span></div>
+          <div><span><%= t('preferred_date') %></span><span><%= formatIsoDate(booking.preferred_date) %> <span dir="ltr"><%= booking.preferred_time || '' %></span></span></div>
+          <div><span><%= t('confirmed_date') %></span><span><%= booking.confirmed_date ? formatIsoDate(booking.confirmed_date) : '—' %> <span dir="ltr"><%= booking.confirmed_time || '' %></span></span></div>
+          <div><span><%= t('assigned_to') %></span><span><%= booking.assigned_name || t('unassigned') %></span></div>
+          <div><span><%= t('customer_details') %></span><span dir="ltr"><%= booking.customer_email || '—' %></span></div>
+        </div>
+        <% if (booking.notes) { %>
+          <div class="note-item" style="margin-top:14px">
+            <div class="meta"><%= t('field_notes') %></div>
+            <div class="body"><%= booking.notes %></div>
+          </div>
+        <% } %>
+        <% if (booking.contact_result) { %>
+          <div class="note-item" style="margin-top:10px">
+            <div class="meta"><%= t('contact_result') %></div>
+            <div class="body"><%= booking.contact_result %></div>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <% if (can('bookings.edit')) { %>
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('manage_booking') %></h2></div>
+        <div class="panel-body">
+          <div class="grid-2">
+            <form method="post" action="/admin/bookings/<%= booking.id %>/status">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <fieldset>
+                <legend><%= t('set_status') %></legend>
+                <div class="field" style="margin-bottom:10px">
+                  <label for="status"><%= t('status') %></label>
+                  <select id="status" name="status">
+                    <% statusFlow.forEach(function (s) { %><option value="<%= s %>" <%= booking.status === s ? 'selected' : '' %>><%= statusLabel(s) %></option><% }) %>
+                  </select>
+                </div>
+                <div class="field" style="margin-bottom:10px">
+                  <label for="note"><%= t('internal_notes') %></label>
+                  <input id="note" name="note" placeholder="<%= t('optional') %>">
+                </div>
+                <button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button>
+              </fieldset>
+            </form>
+
+            <form method="post" action="/admin/bookings/<%= booking.id %>/schedule">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <fieldset>
+                <legend><%= t('confirmed_date') %></legend>
+                <div class="field" style="margin-bottom:10px">
+                  <label for="confirmed_date"><%= t('date') %></label>
+                  <input id="confirmed_date" name="confirmed_date" type="date" value="<%= formatIsoDate(booking.confirmed_date) %>" required>
+                </div>
+                <div class="field" style="margin-bottom:10px">
+                  <label for="confirmed_time"><%= t('preferred_time') %></label>
+                  <input id="confirmed_time" name="confirmed_time" type="time" step="900" value="<%= booking.confirmed_time || '' %>">
+                </div>
+                <button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button>
+              </fieldset>
+            </form>
+          </div>
+
+          <form method="post" action="/admin/bookings/<%= booking.id %>/notes" style="margin-top:14px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <fieldset>
+              <legend><%= t('internal_notes') %></legend>
+              <div class="form-grid">
+                <div class="field full">
+                  <label for="internal_notes"><%= t('internal_notes') %></label>
+                  <textarea id="internal_notes" name="internal_notes"><%= booking.internal_notes || '' %></textarea>
+                </div>
+                <div class="field full">
+                  <label for="contact_result"><%= t('contact_message') %></label>
+                  <input id="contact_result" name="contact_result" value="<%= booking.contact_result || '' %>" placeholder="<%= t('contact_placeholder') %>">
+                </div>
+              </div>
+              <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button></div>
+            </fieldset>
+          </form>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('history') %></h2></div>
+      <div class="panel-body">
+        <% if (!history.length) { %>
+          <div class="empty"><%= t('no_history') %></div>
+        <% } else { %>
+          <div class="timeline">
+            <% history.forEach(function (h) { %>
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="d"><%= h.action %><%= h.old_value || h.new_value ? ' — ' + (h.old_value || '—') + ' → ' + (h.new_value || '—') : '' %></div>
+                  <div class="t"><%= h.full_name || '—' %> · <%= formatDateTime(h.created_at) %><%= h.note ? ' · ' + h.note : '' %></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <% if (can('bookings.assign')) { %>
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('assign_employee') %></h2></div>
+        <div class="panel-body">
+          <form method="post" action="/admin/bookings/<%= booking.id %>/assign">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field" style="margin-bottom:10px">
+              <label for="assigned_employee_id"><%= t('assigned_to') %></label>
+              <select id="assigned_employee_id" name="assigned_employee_id">
+                <option value=""><%= t('unassigned') %></option>
+                <% staff.forEach(function (s) { %><option value="<%= s.id %>" <%= booking.assigned_employee_id === s.id ? 'selected' : '' %>><%= s.full_name %></option><% }) %>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:12px">
+              <label for="center_id"><%= t('center') %></label>
+              <select id="center_id" name="center_id">
+                <option value=""><%= t('all_centers') %></option>
+                <% centers.forEach(function (c) { %><option value="<%= c.id %>" <%= booking.center_id === c.id ? 'selected' : '' %>><%= lang === 'fr' ? c.name_fr : c.name_ar %></option><% }) %>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-block btn-sm" type="submit"><%= t('save') %></button>
+          </form>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('quick_actions') %></h2></div>
+      <div class="panel-body stack" style="gap:8px">
+        <% if (can('bookings.edit') && booking.status !== 'confirmed') { %>
+          <form method="post" action="/admin/bookings/<%= booking.id %>/status">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="status" value="confirmed">
+            <button class="btn btn-ok btn-block" type="submit"><%- include('../partials/icon', { name: 'check-circle' }) %><%= t('booking_confirmed') %></button>
+          </form>
+        <% } %>
+        <% if (can('bookings.edit') && booking.status !== 'cancelled') { %>
+          <form method="post" action="/admin/bookings/<%= booking.id %>/status" data-confirm="<%= t('confirm_status_text') %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="status" value="cancelled">
+            <button class="btn btn-danger btn-block" type="submit"><%- include('../partials/icon', { name: 'close' }) %><%= t('cancel_booking') %></button>
+          </form>
+        <% } %>
+        <% if (can('bookings.edit') && booking.status !== 'completed') { %>
+          <form method="post" action="/admin/bookings/<%= booking.id %>/status">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="status" value="completed">
+            <button class="btn btn-ghost btn-block" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('mark_completed') %></button>
+          </form>
+        <% } %>
+        <% if (can('bookings.edit') && booking.status !== 'no_show') { %>
+          <form method="post" action="/admin/bookings/<%= booking.id %>/status">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="status" value="no_show">
+            <button class="btn btn-ghost btn-block" type="submit"><%= t('mark_no_show') %></button>
+          </form>
+        <% } %>
+      </div>
+    </section>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

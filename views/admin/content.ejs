@@ -1,0 +1,263 @@
+<%- include('../partials/admin/head', { title: t('content_title'), active: 'content' }) %>
+<% const LABELS = {
+  site_logo: ['الشعار', 'Logo'],
+  hero_title: ['عنوان الرئيسية', 'Titre principal'],
+  hero_description: ['وصف الرئيسية', 'Description principale'],
+  hero_image: ['صورة الرئيسية', 'Image principale'],
+  intro_title: ['عنوان التعريف', 'Titre de présentation'],
+  intro_text: ['نص التعريف', 'Texte de présentation'],
+  brands_title: ['عنوان العلامات', 'Titre des marques'],
+  brands_intro: ['نص العلامات', 'Texte des marques'],
+  how_title: ['عنوان كيف نعمل', 'Titre comment ça marche'],
+  how_intro: ['تمهيد كيف نعمل', 'Introduction comment ça marche'],
+  step1_title: ['الخطوة 1 — العنوان', 'Étape 1 — titre'],
+  step1_text: ['الخطوة 1 — النص', 'Étape 1 — texte'],
+  step2_title: ['الخطوة 2 — العنوان', 'Étape 2 — titre'],
+  step2_text: ['الخطوة 2 — النص', 'Étape 2 — texte'],
+  step3_title: ['الخطوة 3 — العنوان', 'Étape 3 — titre'],
+  step3_text: ['الخطوة 3 — النص', 'Étape 3 — texte'],
+  step4_title: ['الخطوة 4 — العنوان', 'Étape 4 — titre'],
+  step4_text: ['الخطوة 4 — النص', 'Étape 4 — texte'],
+  booking_note: ['تنبيه المواعيد', 'Note sur les rendez-vous'],
+  audiogram_title: ['عنوان مخطط السمع', 'Titre de l’audiogramme'],
+  audiogram_note: ['تنبيه مخطط السمع', 'Note de l’audiogramme'],
+  centers_title: ['عنوان المراكز', 'Titre des centres'],
+  centers_intro: ['نص المراكز', 'Texte des centres'],
+  faq_title: ['عنوان الأسئلة', 'Titre FAQ'],
+  faq_intro: ['تمهيد الأسئلة', 'Introduction FAQ'],
+  contact_title: ['عنوان التواصل', 'Titre contact'],
+  contact_intro: ['نص التواصل', 'Texte contact'],
+  phone_primary: ['الهاتف الرئيسي', 'Téléphone principal'],
+  phone_secondary: ['الهاتف الثاني', 'Téléphone secondaire'],
+  phone_tertiary: ['الهاتف الثالث', 'Téléphone tertiaire'],
+  contact_email: ['البريد الإلكتروني', 'E-mail de contact'],
+  social_facebook: ['فيسبوك', 'Facebook'],
+  social_instagram: ['إنستغرام', 'Instagram'],
+  social_linkedin: ['لينكدإن', 'LinkedIn'],
+  footer_about: ['نبذة التذييل', 'À propos (pied de page)'],
+  copyright: ['حقوق النشر', 'Copyright'],
+  privacy_policy: ['سياسة الخصوصية', 'Politique de confidentialité'],
+  terms_of_use: ['شروط الاستخدام', 'Conditions d’utilisation']
+};
+const label = (k) => LABELS[k] ? (lang === 'fr' ? LABELS[k][1] : LABELS[k][0]) : k;
+const draftReady = (row) => row.draft_ar !== null || row.draft_fr !== null;
+%>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <strong><%= t('content_title') %></strong>
+  <span style="flex:1"></span>
+  <a class="btn btn-ghost btn-sm" href="/?preview=1&lang=<%= lang %>" target="_blank"><%- include('../partials/icon', { name: 'eye' }) %><%= t('preview') %></a>
+</div>
+
+<div class="alert alert-info">
+  <%- include('../partials/icon', { name: 'info' }) %>
+  <span><%= lang === 'ar' ? 'التعديلات تُحفظ كمسودة أولًا. تظهر على الموقع فقط بعد النشر من مخوّل، ويمكن الرجوع إلى نسخة سابقة.' : 'Les modifications sont enregistrées en brouillon. Elles n’apparaissent sur le site qu’après publication par un utilisateur autorisé, avec restauration possible.' %></span>
+</div>
+
+<form method="post" action="/admin/content/draft">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% Object.keys(grouped).forEach(function (section) { %>
+    <details class="panel" open>
+      <summary class="panel-head" style="cursor:pointer"><h2><%= sections[section] ? (lang === 'fr' ? sections[section].fr : sections[section].ar) : section %></h2></summary>
+      <div class="panel-body">
+        <% grouped[section].forEach(function (row) { %>
+          <% const arVal = row.draft_ar !== null ? row.draft_ar : row.value_ar; %>
+          <% const frVal = row.draft_fr !== null ? row.draft_fr : row.value_fr; %>
+          <div class="content-field">
+            <div>
+              <strong style="font-size:.86rem"><%= label(row.key) %></strong>
+              <div class="key"><%= row.key %></div>
+              <% if (draftReady(row)) { %><div class="draft-note"><%= t('draft') %> — <%= t('last_published') %>: <%= row.published_at ? formatDate(row.published_at) : '—' %></div><% } %>
+              <% if (row.type === 'image') { %>
+                <div style="margin-top:8px">
+                  <img class="image-preview" src="<%= arVal || '/assets/favicon.svg' %>" alt="">
+                  <a class="cell-sub" style="display:block;margin-top:4px" href="/admin/content/versions/<%= row.key %>"><%= t('versions') %></a>
+                </div>
+              <% } else { %>
+                <a class="cell-sub" style="display:block;margin-top:6px" href="/admin/content/versions/<%= row.key %>"><%= t('versions') %></a>
+              <% } %>
+            </div>
+            <div class="inputs">
+              <% if (row.type === 'image') { %>
+                <div class="field"><label>AR / <%= t('image') %></label><input name="ar__<%= row.key %>" value="<%= arVal %>" <%= can('content.manage') ? '' : 'readonly' %>></div>
+                <div class="field"><label>FR</label><input name="fr__<%= row.key %>" value="<%= frVal %>" <%= can('content.manage') ? '' : 'readonly' %>></div>
+              <% } else if (row.type === 'textarea') { %>
+                <div class="field"><label>AR</label><textarea name="ar__<%= row.key %>" dir="rtl" <%= can('content.manage') ? '' : 'readonly' %>><%= arVal %></textarea></div>
+                <div class="field"><label>FR</label><textarea name="fr__<%= row.key %>" dir="ltr" <%= can('content.manage') ? '' : 'readonly' %>><%= frVal %></textarea></div>
+              <% } else { %>
+                <div class="field"><label>AR</label><input name="ar__<%= row.key %>" value="<%= arVal %>" dir="rtl" <%= can('content.manage') ? '' : 'readonly' %>></div>
+                <div class="field"><label>FR</label><input name="fr__<%= row.key %>" value="<%= frVal %>" dir="ltr" <%= can('content.manage') ? '' : 'readonly' %>></div>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </details>
+  <% }) %>
+
+  <% if (can('content.manage')) { %>
+    <div class="form-actions" style="justify-content:flex-end;margin-bottom:22px">
+      <button class="btn btn-ghost" type="submit"><%- include('../partials/icon', { name: 'edit' }) %><%= t('save_draft') %></button>
+    </div>
+  <% } %>
+</form>
+
+<% if (can('content.publish') || can('content.manage')) { %>
+  <div class="panel">
+    <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <% if (can('content.publish')) { %>
+        <form method="post" action="/admin/content/publish" data-confirm="<%= lang === 'ar' ? 'نشر التعديلات على الموقع العام؟' : 'Publier les modifications sur le site public ?' %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'send' }) %><%= t('publish') %></button>
+        </form>
+      <% } %>
+      <% if (can('content.manage')) { %>
+        <form method="post" action="/admin/content/discard" data-confirm="<%= t('confirm_delete_text') %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-ghost" type="submit"><%= t('cancel') %></button>
+        </form>
+      <% } %>
+      <span class="cell-sub"><%= t('demo_notice') %></span>
+    </div>
+  </div>
+<% } %>
+
+<section class="panel" id="images">
+  <div class="panel-head"><h2><%= lang === 'ar' ? 'صور الموقع' : 'Images du site' %></h2></div>
+  <div class="panel-body">
+    <p class="cell-sub"><%= lang === 'ar' ? 'يُرفع الملف كمسودة، ويظهر على الموقع بعد النشر.' : 'Le fichier est importé en brouillon et apparaît après publication.' %></p>
+    <% contentRows.filter(function (r) { return r.type === 'image'; }).forEach(function (row) { %>
+      <div class="note-item" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <img src="<%= row.value_ar || '/assets/favicon.svg' %>" alt="" style="width:120px;height:78px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#fff">
+        <div style="flex:1;min-width:220px">
+          <strong><%= label(row.key) %></strong>
+          <div class="key" dir="ltr"><%= row.key %></div>
+          <div class="cell-sub" dir="ltr"><%= row.value_ar || '—' %></div>
+        </div>
+        <% if (can('content.manage')) { %>
+          <form method="post" action="/admin/content/upload" enctype="multipart/form-data" class="inline-fields">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="key" value="<%= row.key %>">
+            <div class="field"><input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/svg+xml" required></div>
+            <button class="btn btn-ghost btn-sm" type="submit"><%- include('../partials/icon', { name: 'image' }) %><%= t('attach_file') %></button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<section class="panel" id="services">
+  <div class="panel-head"><h2><%= t('services_manage') %></h2></div>
+  <div class="panel-body flush">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><%= t('service') %></th><th><%= t('duration') %></th><th><%= t('status') %></th><th></th></tr></thead>
+        <tbody>
+          <% services.forEach(function (s) { %>
+            <tr>
+              <td>
+                <div class="cell-main"><%= lang === 'fr' ? s.name_fr : s.name_ar %></div>
+                <div class="cell-sub"><%= lang === 'fr' ? s.name_ar : s.name_fr %> · <span dir="ltr"><%= s.slug %></span></div>
+              </td>
+              <td><%= s.duration_min || '—' %>–<%= s.duration_max || '—' %> <%= t('minutes') %></td>
+              <td><span class="badge badge-<%= s.is_active ? 'ok' : 'muted' %>"><%= s.is_active ? t('is_active') : t('inactive') %></span></td>
+              <td>
+                <% if (can('content.manage')) { %>
+                  <details class="disclosure">
+                    <summary><%= t('edit') %></summary>
+                    <form method="post" action="/admin/content/services/save" style="margin-top:10px;min-width:280px">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="id" value="<%= s.id %>">
+                      <div class="field" style="margin-bottom:8px"><label>Slug</label><input name="slug" value="<%= s.slug %>" dir="ltr" required></div>
+                      <div class="field" style="margin-bottom:8px"><label>AR</label><input name="name_ar" value="<%= s.name_ar %>" dir="rtl" required></div>
+                      <div class="field" style="margin-bottom:8px"><label>FR</label><input name="name_fr" value="<%= s.name_fr %>" dir="ltr" required></div>
+                      <div class="field" style="margin-bottom:8px"><label><%= t('field_notes') %> AR</label><textarea name="description_ar" dir="rtl" style="min-height:60px"><%= s.description_ar %></textarea></div>
+                      <div class="field" style="margin-bottom:8px"><label><%= t('field_notes') %> FR</label><textarea name="description_fr" dir="ltr" style="min-height:60px"><%= s.description_fr %></textarea></div>
+                      <div class="inline-fields" style="margin-bottom:8px">
+                        <div class="field"><label><%= t('duration_min') %></label><input name="duration_min" type="number" value="<%= s.duration_min || '' %>"></div>
+                        <div class="field"><label><%= t('duration_max') %></label><input name="duration_max" type="number" value="<%= s.duration_max || '' %>"></div>
+                      </div>
+                      <div class="field" style="margin-bottom:8px"><label><%= t('icon') %></label><input name="icon" value="<%= s.icon %>" dir="ltr"></div>
+                      <label class="check" style="margin-bottom:8px"><input type="checkbox" name="is_active" <%= s.is_active ? 'checked' : '' %>><span><%= t('is_active') %></span></label>
+                      <button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button>
+                    </form>
+                  </details>
+                  <form method="post" action="/admin/content/services/<%= s.id %>/toggle" style="margin-top:4px">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-ghost btn-sm" type="submit"><%= s.is_active ? t('deactivate') : t('activate') %></button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% if (can('content.manage')) { %>
+      <div class="panel-body" style="border-top:1px solid var(--line)">
+        <details class="disclosure">
+          <summary><%= t('add_service') %></summary>
+          <form method="post" action="/admin/content/services/save" class="form-grid" style="margin-top:12px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field"><label>Slug</label><input name="slug" placeholder="hearing-test" dir="ltr" required></div>
+            <div class="field"><label>AR</label><input name="name_ar" dir="rtl" required></div>
+            <div class="field"><label>FR</label><input name="name_fr" dir="ltr" required></div>
+            <div class="field"><label><%= t('icon') %></label><input name="icon" value="ear" dir="ltr"></div>
+            <div class="field"><label><%= t('duration_min') %></label><input name="duration_min" type="number"></div>
+            <div class="field"><label><%= t('duration_max') %></label><input name="duration_max" type="number"></div>
+            <div class="field full"><label><%= t('field_notes') %> AR</label><textarea name="description_ar" dir="rtl" style="min-height:60px"></textarea></div>
+            <div class="field full"><label><%= t('field_notes') %> FR</label><textarea name="description_fr" dir="ltr" style="min-height:60px"></textarea></div>
+            <div class="form-actions full"><button class="btn btn-primary" type="submit"><%= t('save') %></button></div>
+          </form>
+        </details>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="panel" id="faqs">
+  <div class="panel-head"><h2><%= t('faqs_manage') %></h2></div>
+  <div class="panel-body">
+    <% faqs.forEach(function (f) { %>
+      <details class="disclosure" style="border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px">
+        <summary><%= lang === 'fr' ? f.question_fr : f.question_ar %> <span class="badge badge-<%= f.is_active ? 'ok' : 'muted' %>"><%= f.is_active ? t('is_active') : t('inactive') %></span></summary>
+        <% if (can('content.manage')) { %>
+          <form method="post" action="/admin/content/faqs/save" style="margin-top:10px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="id" value="<%= f.id %>">
+            <div class="form-grid">
+              <div class="field"><label><%= t('question') %> AR</label><input name="question_ar" value="<%= f.question_ar %>" dir="rtl" required></div>
+              <div class="field"><label><%= t('question') %> FR</label><input name="question_fr" value="<%= f.question_fr %>" dir="ltr" required></div>
+              <div class="field"><label><%= t('answer') %> AR</label><textarea name="answer_ar" dir="rtl" required><%= f.answer_ar %></textarea></div>
+              <div class="field"><label><%= t('answer') %> FR</label><textarea name="answer_fr" dir="ltr" required><%= f.answer_fr %></textarea></div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button>
+            </div>
+          </form>
+          <form method="post" action="/admin/content/faqs/<%= f.id %>/toggle" data-confirm="<%= t('confirm_status_text') %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-ghost btn-sm" type="submit"><%= f.is_active ? t('deactivate') : t('activate') %></button>
+          </form>
+        <% } %>
+      </details>
+    <% }) %>
+
+    <% if (can('content.manage')) { %>
+      <details class="disclosure">
+        <summary><%= t('add_faq') %></summary>
+        <form method="post" action="/admin/content/faqs/save" class="form-grid" style="margin-top:12px">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="field"><label><%= t('question') %> AR</label><input name="question_ar" dir="rtl" required></div>
+          <div class="field"><label><%= t('question') %> FR</label><input name="question_fr" dir="ltr" required></div>
+          <div class="field"><label><%= t('answer') %> AR</label><textarea name="answer_ar" dir="rtl" required></textarea></div>
+          <div class="field"><label><%= t('answer') %> FR</label><textarea name="answer_fr" dir="ltr" required></textarea></div>
+          <div class="form-actions full"><button class="btn btn-primary" type="submit"><%= t('save') %></button></div>
+        </form>
+      </details>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/admin/foot') %>

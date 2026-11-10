@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= booking.reference %> — AUDIOLEF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body style="background:#eef4f9">
+  <div class="print-sheet">
+    <div class="print-head">
+      <div>
+        <div class="brand-name">AUDIO LEF</div>
+        <div class="cell-sub"><%= t('brand_tagline') %></div>
+      </div>
+      <div style="text-align:end">
+        <strong style="font-size:1.1rem" dir="ltr"><%= booking.reference %></strong>
+        <div class="cell-sub"><%= formatDateTime(booking.created_at) %></div>
+      </div>
+    </div>
+
+    <h2 style="font-size:1.15rem"><%= t('menu_bookings') %></h2>
+    <div class="print-grid">
+      <div><span><%= t('field_full_name') %></span><strong><%= booking.customer_name %></strong></div>
+      <div><span><%= t('field_phone') %></span><strong dir="ltr"><%= booking.phone %></strong></div>
+      <div><span><%= t('field_wilaya') %></span><strong><%= lang === 'fr' ? (booking.wilaya_fr || '—') : (booking.wilaya_ar || '—') %> — <%= booking.city || '' %></strong></div>
+      <div><span><%= t('service') %></span><strong><%= lang === 'fr' ? (booking.service_fr || '—') : (booking.service_ar || '—') %></strong></div>
+      <div><span><%= t('center') %></span><strong><%= lang === 'fr' ? (booking.center_fr || '—') : (booking.center_ar || '—') %></strong></div>
+      <div><span><%= t('assigned_to') %></span><strong><%= booking.assigned_name || t('unassigned') %></strong></div>
+      <div><span><%= t('preferred_date') %></span><strong><%= formatIsoDate(booking.preferred_date) %> <span dir="ltr"><%= booking.preferred_time || '' %></span></strong></div>
+      <div><span><%= t('confirmed_date') %></span><strong><%= booking.confirmed_date ? formatIsoDate(booking.confirmed_date) : '—' %> <span dir="ltr"><%= booking.confirmed_time || '' %></span></strong></div>
+      <div><span><%= t('status') %></span><strong><%= statusLabel(booking.status) %></strong></div>
+      <div><span><%= t('created_at') %></span><strong><%= formatDateTime(booking.created_at) %></strong></div>
+    </div>
+
+    <% if (booking.notes) { %>
+      <div style="margin-top:20px"><span class="cell-sub"><%= t('field_notes') %></span><p><%= booking.notes %></p></div>
+    <% } %>
+    <% if (booking.internal_notes) { %>
+      <div style="margin-top:14px"><span class="cell-sub"><%= t('internal_notes') %></span><p><%= booking.internal_notes %></p></div>
+    <% } %>
+
+    <p class="cell-sub" style="margin-top:28px"><%= c('booking_note') %></p>
+
+    <div class="no-print" style="margin-top:24px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="window.print()"><%= t('print') %></button>
+      <a class="btn btn-ghost" href="/admin/bookings/<%= booking.id %>"><%= t('back') %></a>
+    </div>
+  </div>
+</body>
+</html>

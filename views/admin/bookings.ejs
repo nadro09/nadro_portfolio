@@ -1,0 +1,147 @@
+<%- include('../partials/admin/head', { title: t('menu_bookings'), active: 'bookings' }) %>
+<% const qp = (extra) => {
+     const q = new URLSearchParams();
+     Object.keys(filters).forEach(function (k) { if (filters[k] !== '' && filters[k] !== null && filters[k] !== undefined) q.set(k, filters[k]); });
+     Object.keys(extra || {}).forEach(function (k) { q.set(k, extra[k]); });
+     return q.toString();
+   };
+   const monthLabel = calendar ? new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'ar-DZ', { month: 'long', year: 'numeric', calendar: 'gregory', numberingSystem: 'latn' }).format(new Date(Date.UTC(calendar.year, calendar.month - 1, 1))) : '';
+   const prevMonth = calendar ? new Date(Date.UTC(calendar.year, calendar.month - 2, 1)).toISOString().slice(0, 7) : '';
+   const nextMonth = calendar ? new Date(Date.UTC(calendar.year, calendar.month, 1)).toISOString().slice(0, 7) : '';
+%>
+
+<div class="tabs">
+  <a href="/admin/bookings?<%= qp({ view: 'table', page: 1 }) %>" class="<%= filters.view === 'table' ? 'active' : '' %>"><%= t('table_view') %></a>
+  <a href="/admin/bookings?<%= qp({ view: 'calendar', page: 1 }) %>" class="<%= filters.view === 'calendar' ? 'active' : '' %>"><%= t('calendar_view') %></a>
+</div>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/bookings">
+    <input type="hidden" name="view" value="<%= filters.view %>">
+    <div class="field grow">
+      <label for="q"><%= t('search') %></label>
+      <input id="q" name="q" value="<%= filters.q %>" placeholder="<%= t('search_placeholder') %>">
+    </div>
+    <div class="field">
+      <label for="status"><%= t('status') %></label>
+      <select id="status" name="status">
+        <option value=""><%= t('all_statuses') %></option>
+        <% statusFlow.forEach(function (s) { %>
+          <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= statusLabel(s) %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="wilaya"><%= t('wilaya') %></label>
+      <select id="wilaya" name="wilaya">
+        <option value=""><%= t('all') %></option>
+        <% wilayas.forEach(function (w) { %><option value="<%= w.id %>" <%= filters.wilaya === w.id ? 'selected' : '' %>><%= lang === 'fr' ? w.name_fr : w.name_ar %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="center"><%= t('center') %></label>
+      <select id="center" name="center">
+        <option value=""><%= t('all_centers') %></option>
+        <% centers.forEach(function (c) { %><option value="<%= c.id %>" <%= filters.center === c.id ? 'selected' : '' %>><%= lang === 'fr' ? c.name_fr : c.name_ar %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="service"><%= t('service') %></label>
+      <select id="service" name="service">
+        <option value=""><%= t('all_services') %></option>
+        <% services.forEach(function (s) { %><option value="<%= s.id %>" <%= filters.service === s.id ? 'selected' : '' %>><%= lang === 'fr' ? s.name_fr : s.name_ar %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="from"><%= t('from_date') %></label>
+      <input id="from" name="from" type="date" value="<%= filters.from %>">
+    </div>
+    <div class="field">
+      <label for="to"><%= t('to_date') %></label>
+      <input id="to" name="to" type="date" value="<%= filters.to %>">
+    </div>
+    <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'filter' }) %><%= t('filter') %></button>
+    <a class="btn btn-ghost" href="/admin/bookings"><%= t('clear_filters') %></a>
+    <% if (can('bookings.export')) { %>
+      <a class="btn btn-ghost" href="/admin/bookings/export.csv?<%= qp({}) %>"><%- include('../partials/icon', { name: 'download' }) %><%= t('export_csv') %></a>
+    <% } %>
+  </form>
+
+  <% if (filters.view === 'calendar' && calendar) { %>
+    <div class="calendar-head">
+      <a class="btn btn-ghost btn-sm" href="/admin/bookings?<%= qp({ view: 'calendar', month: prevMonth, page: 1 }) %>">‹</a>
+      <h2><%= monthLabel %></h2>
+      <a class="btn btn-ghost btn-sm" href="/admin/bookings?<%= qp({ view: 'calendar', month: nextMonth, page: 1 }) %>">›</a>
+      <span class="spacer"></span>
+      <span class="cell-sub"><%= lang === 'ar' ? 'المواعيد حسب التاريخ المفضل أو المؤكد' : 'Rendez-vous par date souhaitée ou confirmée' %></span>
+    </div>
+    <div class="calendar-grid">
+      <% ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].forEach(function (d, i) { %>
+        <div class="calendar-dow"><%= lang === 'fr' ? ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][i] : d %></div>
+      <% }) %>
+      <% for (let i = 0; i < calendar.startOffset; i++) { %><div class="calendar-day empty"></div><% } %>
+      <% for (let day = 1; day <= calendar.daysInMonth; day++) {
+           const iso = `${calendar.year}-${String(calendar.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+           const items = calendar.byDay[iso] || [];
+           const isToday = iso === new Date().toISOString().slice(0, 10);
+      %>
+        <div class="calendar-day <%= isToday ? 'today' : '' %>">
+          <div class="dnum"><%= day %></div>
+          <% items.slice(0, 4).forEach(function (b) { %>
+            <a class="cal-item status-<%= b.status %>" href="/admin/bookings/<%= b.id %>" title="<%= b.customer_name %> — <%= statusLabel(b.status) %>">
+              <span class="cal-time"><%= b.confirmed_time || b.preferred_time || '' %></span><%= b.customer_name %>
+            </a>
+          <% }) %>
+          <% if (items.length > 4) { %><span class="cell-sub">+<%= items.length - 4 %></span><% } %>
+        </div>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><%= t('reference') %></th>
+            <th><%= t('field_full_name') %></th>
+            <th><%= t('service') %></th>
+            <th><%= t('center') %></th>
+            <th><%= t('preferred_date') %></th>
+            <th><%= t('status') %></th>
+            <th><%= t('assigned_to') %></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!bookings.length) { %>
+            <tr><td colspan="8"><div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'calendar' }) %></div><%= t('no_results') %></div></td></tr>
+          <% } %>
+          <% bookings.forEach(function (b) { %>
+            <tr>
+              <td class="nowrap">
+                <span dir="ltr"><%= b.reference %></span>
+                <% if (b.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %>
+              </td>
+              <td>
+                <div class="cell-main"><%= b.customer_name %></div>
+                <div class="cell-sub" dir="ltr"><%= b.phone %></div>
+              </td>
+              <td><%= lang === 'fr' ? (b.service_fr || '—') : (b.service_ar || '—') %></td>
+              <td><%= lang === 'fr' ? (b.center_fr || '—') : (b.center_ar || '—') %><div class="cell-sub"><%= lang === 'fr' ? (b.wilaya_fr || '') : (b.wilaya_ar || '') %></div></td>
+              <td class="nowrap"><%= formatIsoDate(b.confirmed_date || b.preferred_date) %><div class="cell-sub" dir="ltr"><%= b.confirmed_time || b.preferred_time || '' %></div></td>
+              <td><span class="badge badge-<%= statusMeta[b.status] ? statusMeta[b.status].tone : 'muted' %>"><%= statusLabel(b.status) %></span></td>
+              <td><%= b.assigned_name || t('unassigned') %></td>
+              <td><a class="btn btn-ghost btn-sm" href="/admin/bookings/<%= b.id %>"><%= t('details') %></a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span class="info"><%= t('page') %> <%= pager.page %> <%= t('of') %> <%= pager.pages %> · <%= pager.total %> <%= t('results') %></span>
+      <a class="page-link <%= pager.page <= 1 ? 'disabled' : '' %>" href="/admin/bookings?<%= qp({ page: pager.page - 1 }) %>"><%= t('prev') %></a>
+      <a class="page-link <%= pager.page >= pager.pages ? 'disabled' : '' %>" href="/admin/bookings?<%= qp({ page: pager.page + 1 }) %>"><%= t('next') %></a>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/admin/foot') %>

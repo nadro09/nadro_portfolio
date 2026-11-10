@@ -1,0 +1,57 @@
+<%- include('../partials/admin/head', { title: t('versions'), active: 'content' }) %>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <a class="btn btn-ghost btn-sm" href="/admin/content"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('content_title') %></a>
+  <strong dir="ltr"><%= content.key %></strong>
+</div>
+
+<div class="grid-main-side">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('versions') %></h2></div>
+    <div class="panel-body flush">
+      <% if (!versions.length) { %>
+        <div class="empty"><%= t('no_data') %></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="table versions-table">
+            <thead><tr><th><%= t('date') %></th><th>AR</th><th>FR</th><th><%= t('by') %></th><th></th></tr></thead>
+            <tbody>
+              <% versions.forEach(function (v) { %>
+                <tr>
+                  <td class="nowrap"><%= formatDateTime(v.published_at) %></td>
+                  <td dir="rtl" style="max-width:220px"><%= v.value_ar %></td>
+                  <td dir="ltr" style="max-width:220px"><%= v.value_fr %></td>
+                  <td><%= v.full_name || '—' %></td>
+                  <td>
+                    <% if (can('content.manage')) { %>
+                      <form method="post" action="/admin/content/versions/<%= v.id %>/restore" data-confirm="<%= t('restore') %>?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-ghost btn-sm" type="submit"><%= t('restore') %></button>
+                      </form>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('published') %></h2></div>
+    <div class="panel-body">
+      <div class="detail-list">
+        <div><span>AR</span><span dir="rtl"><%= content.value_ar || '—' %></span></div>
+        <div><span>FR</span><span dir="ltr"><%= content.value_fr || '—' %></span></div>
+        <div><span><%= t('last_published') %></span><span><%= content.published_at ? formatDateTime(content.published_at) : '—' %></span></div>
+      </div>
+      <% if (content.draft_ar !== null || content.draft_fr !== null) { %>
+        <div class="alert alert-warning" style="margin-top:14px"><%- include('../partials/icon', { name: 'edit' }) %><span><%= t('draft') %>: <%= content.draft_ar || content.draft_fr %></span></div>
+      <% } %>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/admin/foot') %>

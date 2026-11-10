@@ -1,0 +1,60 @@
+<%- include('../partials/admin/head', { title: center && center.id ? t('edit_center') : t('add_center'), active: 'centers' }) %>
+<% const val = (f) => center && center[f] !== undefined && center[f] !== null ? center[f] : ''; %>
+<% const err = (f) => (errors || []).find((e) => e.field === f); %>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <a class="btn btn-ghost btn-sm" href="/admin/centers"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <strong><%= center && center.id ? t('edit_center') : t('add_center') %></strong>
+</div>
+
+<form method="post" action="/admin/centers/save" class="panel">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% if (center && center.id) { %><input type="hidden" name="id" value="<%= center.id %>"><% } %>
+  <div class="panel-body">
+    <% if (errors && errors.length) { %>
+      <div class="alert alert-error"><%- include('../partials/icon', { name: 'alert' }) %><div>
+        <% errors.forEach(function (e) { %><div><%= e.message %></div><% }) %>
+      </div></div>
+    <% } %>
+
+    <div class="form-grid">
+      <div class="field <%= err('code') ? 'has-error' : '' %>"><label for="code"><%= t('center_code') %> *</label><input id="code" name="code" value="<%= val('code') %>" required></div>
+      <div class="field <%= err('wilaya_id') ? 'has-error' : '' %>"><label for="wilaya_id"><%= t('wilaya') %> *</label>
+        <select id="wilaya_id" name="wilaya_id" required><option value=""><%= t('select_placeholder') %></option>
+          <% wilayas.forEach(function (w) { %><option value="<%= w.id %>" <%= String(val('wilaya_id')) === String(w.id) ? 'selected' : '' %>><%= w.id %> — <%= lang === 'fr' ? w.name_fr : w.name_ar %></option><% }) %>
+        </select>
+      </div>
+      <div class="field <%= err('name_ar') ? 'has-error' : '' %>"><label for="name_ar"><%= t('center') %> (AR) *</label><input id="name_ar" name="name_ar" value="<%= val('name_ar') %>" required dir="rtl"></div>
+      <div class="field"><label for="name_fr"><%= t('center') %> (FR) *</label><input id="name_fr" name="name_fr" value="<%= val('name_fr') %>" required dir="ltr"></div>
+      <div class="field"><label for="city_ar"><%= t('field_city') %> (AR) *</label><input id="city_ar" name="city_ar" value="<%= val('city_ar') %>" required dir="rtl"></div>
+      <div class="field"><label for="city_fr"><%= t('field_city') %> (FR)</label><input id="city_fr" name="city_fr" value="<%= val('city_fr') %>" dir="ltr"></div>
+      <div class="field"><label for="address_ar"><%= t('center_address') %> (AR)</label><input id="address_ar" name="address_ar" value="<%= val('address_ar') %>" dir="rtl"></div>
+      <div class="field"><label for="address_fr"><%= t('center_address') %> (FR)</label><input id="address_fr" name="address_fr" value="<%= val('address_fr') %>" dir="ltr"></div>
+      <div class="field"><label for="latitude">Latitude</label><input id="latitude" name="latitude" value="<%= val('latitude') %>" dir="ltr" placeholder="36.7538"></div>
+      <div class="field"><label for="longitude">Longitude</label><input id="longitude" name="longitude" value="<%= val('longitude') %>" dir="ltr" placeholder="3.0588"></div>
+      <div class="field"><label for="phone_primary"><%= t('center_phone') %> 1</label><input id="phone_primary" name="phone_primary" value="<%= val('phone_primary') %>" dir="ltr"></div>
+      <div class="field"><label for="phone_secondary"><%= t('center_phone') %> 2</label><input id="phone_secondary" name="phone_secondary" value="<%= val('phone_secondary') %>" dir="ltr"></div>
+      <div class="field"><label for="email"><%= t('field_email') %></label><input id="email" name="email" type="email" value="<%= val('email') %>" dir="ltr"></div>
+      <div class="field"><label for="opening_hours_ar"><%= t('center_hours') %> (AR)</label><input id="opening_hours_ar" name="opening_hours_ar" value="<%= val('opening_hours_ar') %>" dir="rtl"></div>
+      <div class="field"><label for="opening_hours_fr"><%= t('center_hours') %> (FR)</label><input id="opening_hours_fr" name="opening_hours_fr" value="<%= val('opening_hours_fr') %>" dir="ltr"></div>
+      <div class="field"><label>&nbsp;</label>
+        <label class="check"><input type="checkbox" name="is_active" <%= !center || center.is_active ? 'checked' : '' %>><span><%= t('is_active') %></span></label>
+      </div>
+    </div>
+
+    <fieldset style="margin-top:16px">
+      <legend><%= t('center_services') %></legend>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">
+        <% services.forEach(function (s) { %>
+          <label class="check"><input type="checkbox" name="services" value="<%= s.id %>" <%= (selectedServices || []).map(Number).includes(s.id) ? 'checked' : '' %>><span><%= lang === 'fr' ? s.name_fr : s.name_ar %></span></label>
+        <% }) %>
+      </div>
+    </fieldset>
+  </div>
+  <div class="pagination" style="justify-content:flex-end">
+    <a class="btn btn-ghost" href="/admin/centers"><%= t('cancel') %></a>
+    <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('save') %></button>
+  </div>
+</form>
+
+<%- include('../partials/admin/foot') %>

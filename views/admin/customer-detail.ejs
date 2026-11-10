@@ -1,0 +1,152 @@
+<%- include('../partials/admin/head', { title: customer.full_name, active: 'customers' }) %>
+
+<div class="hero-mini" style="margin-bottom:18px">
+  <a class="btn btn-ghost btn-sm" href="/admin/customers"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <span class="user-avatar" style="width:46px;height:46px;border-radius:13px;font-size:1.05rem"><%= customer.full_name.trim().charAt(0) %></span>
+  <div>
+    <strong style="font-size:1.05rem"><%= customer.full_name %></strong>
+    <div class="cell-sub" dir="ltr"><%= customer.phone %></div>
+  </div>
+  <span style="flex:1"></span>
+  <% if (customer.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %>
+</div>
+
+<div class="detail-grid">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('customer_file') %></h2></div>
+      <div class="panel-body">
+        <% if (can('customers.edit')) { %>
+          <form method="post" action="/admin/customers/<%= customer.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="form-grid">
+              <div class="field"><label for="full_name"><%= t('field_full_name') %></label><input id="full_name" name="full_name" value="<%= customer.full_name %>" required></div>
+              <div class="field"><label for="phone"><%= t('field_phone') %></label><input id="phone" name="phone" value="<%= customer.phone %>" required dir="ltr"></div>
+              <div class="field"><label for="email"><%= t('field_email') %></label><input id="email" name="email" type="email" value="<%= customer.email || '' %>" dir="ltr"></div>
+              <div class="field"><label for="wilaya_id"><%= t('wilaya') %></label>
+                <select id="wilaya_id" name="wilaya_id"><option value=""><%= t('select_placeholder') %></option>
+                  <% wilayas.forEach(function (w) { %><option value="<%= w.id %>" <%= customer.wilaya_id === w.id ? 'selected' : '' %>><%= lang === 'fr' ? w.name_fr : w.name_ar %></option><% }) %>
+                </select>
+              </div>
+              <div class="field"><label for="city"><%= t('field_city') %></label><input id="city" name="city" value="<%= customer.city || '' %>"></div>
+              <div class="field"><label for="assigned_employee_id"><%= t('assigned_to') %></label>
+                <select id="assigned_employee_id" name="assigned_employee_id"><option value=""><%= t('unassigned') %></option>
+                  <% staff.forEach(function (s) { %><option value="<%= s.id %>" <%= customer.assigned_employee_id === s.id ? 'selected' : '' %>><%= s.full_name %></option><% }) %>
+                </select>
+              </div>
+              <div class="field full"><label for="notes"><%= t('internal_notes') %></label><textarea id="notes" name="notes"><%= customer.notes || '' %></textarea></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit"><%= t('save_changes') %></button></div>
+          </form>
+        <% } else { %>
+          <div class="detail-list">
+            <div><span><%= t('field_full_name') %></span><span><%= customer.full_name %></span></div>
+            <div><span><%= t('field_phone') %></span><span dir="ltr"><%= customer.phone %></span></div>
+            <div><span><%= t('field_email') %></span><span dir="ltr"><%= customer.email || '—' %></span></div>
+            <div><span><%= t('field_wilaya') %></span><span><%= lang === 'fr' ? (customer.wilaya_fr || '—') : (customer.wilaya_ar || '—') %></span></div>
+            <div><span><%= t('assigned_to') %></span><span><%= customer.assigned_name || t('unassigned') %></span></div>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('menu_bookings') %></h2></div>
+      <div class="panel-body flush">
+        <% if (!bookings.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th><%= t('reference') %></th><th><%= t('service') %></th><th><%= t('center') %></th><th><%= t('preferred_date') %></th><th><%= t('status') %></th><th></th></tr></thead>
+              <tbody>
+                <% bookings.forEach(function (b) { %>
+                  <tr>
+                    <td class="nowrap"><span dir="ltr"><%= b.reference %></span></td>
+                    <td><%= lang === 'fr' ? (b.service_fr || '—') : (b.service_ar || '—') %></td>
+                    <td><%= lang === 'fr' ? (b.center_fr || '—') : (b.center_ar || '—') %></td>
+                    <td class="nowrap"><%= formatIsoDate(b.preferred_date) %></td>
+                    <td><span class="badge badge-<%= statusMeta[b.status] ? statusMeta[b.status].tone : 'muted' %>"><%= statusLabel(b.status) %></span></td>
+                    <td><a class="btn btn-ghost btn-sm" href="/admin/bookings/<%= b.id %>"><%= t('view') %></a></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('contact_history') %></h2></div>
+      <div class="panel-body">
+        <% if (can('customers.edit')) { %>
+          <form method="post" action="/admin/customers/<%= customer.id %>/contacts" class="inline-fields" style="margin-bottom:16px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field"><label for="channel"><%= t('channel') %></label>
+              <select id="channel" name="channel">
+                <option value="phone"><%= t('channel_phone') %></option>
+                <option value="visit"><%= t('channel_visit') %></option>
+                <option value="email"><%= t('channel_email') %></option>
+              </select>
+            </div>
+            <div class="field" style="flex:3 1 260px"><label for="summary"><%= t('summary') %></label><input id="summary" name="summary" required></div>
+            <button class="btn btn-primary" type="submit"><%= t('add_contact_log') %></button>
+          </form>
+        <% } %>
+        <% if (!contacts.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="timeline">
+            <% contacts.forEach(function (ct) { %>
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="d"><%= ct.summary %></div>
+                  <div class="t"><%= ct.channel %> · <%= ct.full_name || '—' %> · <%= formatDateTime(ct.created_at) %></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('internal_notes') %></h2></div>
+      <div class="panel-body">
+        <% if (can('customers.edit')) { %>
+          <form method="post" action="/admin/customers/<%= customer.id %>/notes" style="margin-bottom:14px">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field"><label for="body"><%= t('add_note') %></label><textarea id="body" name="body" style="min-height:80px" required></textarea></div>
+            <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button></div>
+          </form>
+        <% } %>
+        <% if (!notes.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <% notes.forEach(function (n) { %>
+            <div class="note-item">
+              <div class="meta"><%= n.full_name || '—' %> · <%= formatDateTime(n.created_at) %></div>
+              <div class="body"><%= n.body %></div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('details') %></h2></div>
+      <div class="panel-body">
+        <div class="detail-list">
+          <div><span><%= t('created_at') %></span><span><%= formatDateTime(customer.created_at) %></span></div>
+          <div><span><%= t('updated') %></span><span><%= formatDateTime(customer.updated_at) %></span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

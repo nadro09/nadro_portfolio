@@ -1,0 +1,64 @@
+<%- include('../partials/admin/head', { title: t('wilayas_title'), active: 'wilayas' }) %>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/wilayas">
+    <div class="field grow"><label for="q"><%= t('search') %></label><input id="q" name="q" value="<%= filters.q %>" placeholder="<%= t('wilayas_title') %>"></div>
+    <button class="btn btn-primary" type="submit"><%= t('search') %></button>
+    <a class="btn btn-ghost" href="/admin/wilayas"><%= t('clear_filters') %></a>
+  </form>
+
+  <div class="panel-body" style="border-bottom:1px solid var(--line)">
+    <div class="alert alert-info" style="margin-bottom:0">
+      <%- include('../partials/icon', { name: 'info' }) %>
+      <span><%= t('map_note') %></span>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>#</th><th><%= t('wilaya') %></th><th><%= t('coverage') %></th><th><%= t('centers_count') %></th><th><%= t('bookings_count') %></th><th><%= t('customers_count') %></th><th></th></tr></thead>
+      <tbody>
+        <% wilayas.forEach(function (w) { %>
+          <tr>
+            <td class="muted"><%= w.id %></td>
+            <td>
+              <div class="cell-main"><%= lang === 'fr' ? w.name_fr : w.name_ar %></div>
+              <div class="cell-sub"><%= lang === 'fr' ? w.name_ar : w.name_fr %></div>
+              <% if (can('wilayas.manage')) { %>
+                <details class="disclosure" style="margin-top:4px">
+                  <summary><%= t('edit') %></summary>
+                  <form method="post" action="/admin/wilayas/<%= w.id %>" class="inline-fields" style="margin-top:8px">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="field"><label>AR</label><input name="name_ar" value="<%= w.name_ar %>" dir="rtl" required></div>
+                    <div class="field"><label>FR</label><input name="name_fr" value="<%= w.name_fr %>" dir="ltr" required></div>
+                    <button class="btn btn-primary btn-sm" type="submit"><%= t('save') %></button>
+                  </form>
+                </details>
+              <% } %>
+            </td>
+            <td>
+              <% if (w.centers_count > 0) { %>
+                <span class="badge badge-ok"><%= t('covered') %></span>
+              <% } else if (w.inactive_centers > 0) { %>
+                <span class="badge badge-muted"><%= t('not_covered') %> (<%= w.inactive_centers %>)</span>
+              <% } else { %>
+                <span class="badge badge-muted"><%= t('not_covered') %></span>
+              <% } %>
+            </td>
+            <td><%= w.centers_count %><% if (w.inactive_centers) { %> <span class="cell-sub">(+<%= w.inactive_centers %>)</span><% } %></td>
+            <td><%= w.bookings_count %></td>
+            <td><%= w.customers_count %></td>
+            <td>
+              <% if (can('centers.view')) { %>
+                <a class="btn btn-ghost btn-sm" href="/admin/centers?wilaya=<%= w.id %>"><%= t('menu_centers') %></a>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span class="info"><%= wilayas.length %> <%= t('results') %></span></div>
+</section>
+
+<%- include('../partials/admin/foot') %>

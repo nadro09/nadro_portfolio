@@ -1,0 +1,65 @@
+<%- include('../partials/admin/head', { title: employee && employee.id ? t('edit_user') : t('add_user'), active: 'users' }) %>
+<% const val = (f) => employee && employee[f] !== undefined && employee[f] !== null ? employee[f] : ''; %>
+<% const err = (f) => (errors || []).find((e) => e.field === f); %>
+
+<div class="hero-mini" style="margin-bottom:16px">
+  <a class="btn btn-ghost btn-sm" href="/admin/users"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <strong><%= employee && employee.id ? t('edit_user') : t('add_user') %></strong>
+  <% if (employee && employee.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %>
+</div>
+
+<form method="post" action="/admin/users/save" class="panel">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% if (employee && employee.id) { %><input type="hidden" name="id" value="<%= employee.id %>"><% } %>
+  <div class="panel-body">
+    <% if (errors && errors.length) { %>
+      <div class="alert alert-error"><%- include('../partials/icon', { name: 'alert' }) %><div>
+        <% errors.forEach(function (e) { %><div><%= e.message %></div><% }) %>
+      </div></div>
+    <% } %>
+
+    <div class="form-grid">
+      <div class="field <%= err('full_name') ? 'has-error' : '' %>"><label for="full_name"><%= t('field_full_name') %> *</label><input id="full_name" name="full_name" value="<%= val('full_name') %>" required></div>
+      <div class="field <%= err('username') ? 'has-error' : '' %>"><label for="username"><%= t('username') %> *</label><input id="username" name="username" value="<%= val('username') %>" dir="ltr" required></div>
+      <div class="field <%= err('email') ? 'has-error' : '' %>"><label for="email"><%= t('field_email') %> *</label><input id="email" name="email" type="email" value="<%= val('email') %>" dir="ltr" required></div>
+      <div class="field"><label for="phone"><%= t('field_phone') %></label><input id="phone" name="phone" value="<%= val('phone') %>" dir="ltr"></div>
+      <div class="field"><label for="job_title_ar"><%= t('job_title') %> (AR)</label><input id="job_title_ar" name="job_title_ar" value="<%= val('job_title_ar') %>" dir="rtl"></div>
+      <div class="field"><label for="job_title_fr"><%= t('job_title') %> (FR)</label><input id="job_title_fr" name="job_title_fr" value="<%= val('job_title_fr') %>" dir="ltr"></div>
+      <div class="field" data-center-field><label for="center_id"><%= t('center') %></label>
+        <select id="center_id" name="center_id"><option value=""><%= t('all_centers') %></option>
+          <% centers.forEach(function (c) { %><option value="<%= c.id %>" <%= String(val('center_id')) === String(c.id) ? 'selected' : '' %>><%= lang === 'fr' ? c.name_fr : c.name_ar %></option><% }) %>
+        </select>
+        <span class="hint"><%= lang === 'ar' ? 'مطلوب للأدوار المرتبطة بمركز.' : 'Requis pour les rôles liés à un centre.' %></span>
+      </div>
+      <div class="field"><label>&nbsp;</label>
+        <label class="check"><input type="checkbox" name="is_active" <%= !employee || employee.is_active ? 'checked' : '' %>><span><%= t('is_active') %></span></label>
+      </div>
+    </div>
+
+    <fieldset style="margin-top:16px">
+      <legend><%= t('roles') %></legend>
+      <% if (err('roles')) { %><div class="alert alert-error" style="margin-bottom:10px"><span><%= err('roles').message %></span></div><% } %>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+        <% roles.forEach(function (r) { %>
+          <label class="check">
+            <input type="checkbox" name="roles" value="<%= r.id %>" data-role-all-centers="<%= r.all_centers %>" <%= (selectedRoles || []).map(Number).includes(r.id) ? 'checked' : '' %>>
+            <span><strong><%= lang === 'fr' ? r.name_fr : r.name_ar %></strong><br><span class="hint"><%= lang === 'fr' ? (r.description_fr || '') : (r.description_ar || '') %></span></span>
+          </label>
+        <% }) %>
+      </div>
+      <% if (employee && employee.id) { %>
+        <p class="hint" style="margin-top:10px"><%= t('cannot_edit_self_roles') %></p>
+      <% } %>
+    </fieldset>
+
+    <% if (!employee || !employee.id) { %>
+      <div class="alert alert-info"><%- include('../partials/icon', { name: 'key' }) %><span><%= t('temp_password_hint') %></span></div>
+    <% } %>
+  </div>
+  <div class="pagination" style="justify-content:flex-end">
+    <a class="btn btn-ghost" href="/admin/users"><%= t('cancel') %></a>
+    <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('save') %></button>
+  </div>
+</form>
+
+<%- include('../partials/admin/foot') %>

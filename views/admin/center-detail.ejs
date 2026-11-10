@@ -1,0 +1,81 @@
+<%- include('../partials/admin/head', { title: lang === 'fr' ? center.name_fr : center.name_ar, active: 'centers' }) %>
+
+<div class="hero-mini" style="margin-bottom:18px">
+  <a class="btn btn-ghost btn-sm" href="/admin/centers"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <div>
+    <strong style="font-size:1.05rem"><%= lang === 'fr' ? center.name_fr : center.name_ar %></strong>
+    <div class="cell-sub"><%= center.code %> · <%= lang === 'fr' ? center.wilaya_fr : center.wilaya_ar %> — <%= lang === 'fr' ? center.city_fr : center.city_ar %></div>
+  </div>
+  <span style="flex:1"></span>
+  <span class="badge badge-<%= center.is_active ? 'ok' : 'muted' %>"><%= center.is_active ? t('center_status_active') : t('center_status_inactive') %></span>
+  <% if (center.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %>
+  <% if (can('centers.manage')) { %><a class="btn btn-ghost btn-sm" href="/admin/centers/<%= center.id %>/edit"><%- include('../partials/icon', { name: 'edit' }) %><%= t('edit') %></a><% } %>
+</div>
+
+<div class="detail-grid">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('details') %></h2></div>
+      <div class="panel-body">
+        <div class="detail-list">
+          <div><span><%= t('center_address') %></span><span><%= lang === 'fr' ? (center.address_fr || '—') : (center.address_ar || '—') %></span></div>
+          <div><span><%= t('center_phone') %></span><span dir="ltr"><%= center.phone_primary || '—' %><%= center.phone_secondary ? ' / ' + center.phone_secondary : '' %></span></div>
+          <div><span><%= t('field_email') %></span><span dir="ltr"><%= center.email || '—' %></span></div>
+          <div><span><%= t('center_hours') %></span><span><%= lang === 'fr' ? (center.opening_hours_fr || '—') : (center.opening_hours_ar || '—') %></span></div>
+          <div><span>Lat / Lng</span><span dir="ltr"><%= center.latitude || '—' %> / <%= center.longitude || '—' %></span></div>
+          <div><span><%= t('created_at') %></span><span><%= formatDateTime(center.created_at) %></span></div>
+        </div>
+        <div class="chip-row" style="margin-top:14px">
+          <% services.forEach(function (s) { %><span class="chip"><%= lang === 'fr' ? s.name_fr : s.name_ar %></span><% }) %>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('center_bookings') %></h2></div>
+      <div class="panel-body flush">
+        <% if (!bookings.length) { %>
+          <div class="empty"><%= t('no_data') %></div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th><%= t('reference') %></th><th><%= t('field_full_name') %></th><th><%= t('service') %></th><th><%= t('preferred_date') %></th><th><%= t('status') %></th><th></th></tr></thead>
+              <tbody>
+                <% bookings.forEach(function (b) { %>
+                  <tr>
+                    <td class="nowrap"><span dir="ltr"><%= b.reference %></span></td>
+                    <td><%= b.customer_name %></td>
+                    <td><%= lang === 'fr' ? (b.service_fr || '—') : (b.service_ar || '—') %></td>
+                    <td class="nowrap"><%= formatIsoDate(b.preferred_date) %></td>
+                    <td><span class="badge badge-<%= statusMeta[b.status] ? statusMeta[b.status].tone : 'muted' %>"><%= statusLabel(b.status) %></span></td>
+                    <td><a class="btn btn-ghost btn-sm" href="/admin/bookings/<%= b.id %>"><%= t('view') %></a></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('center_staff') %></h2></div>
+      <div class="panel-body">
+        <% if (!staff.length) { %>
+          <div class="empty"><%= t('no_staff') %></div>
+        <% } else { %>
+          <% staff.forEach(function (e) { %>
+            <div class="note-item">
+              <div class="meta"><%= e.roles || '—' %> · <%= e.is_active ? t('is_active') : t('inactive') %></div>
+              <div class="body"><strong><%= e.full_name %></strong> — <%= lang === 'fr' ? (e.job_title_fr || '') : (e.job_title_ar || '') %></div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </section>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

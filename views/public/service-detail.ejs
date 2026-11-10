@@ -1,0 +1,86 @@
+<%- include('../partials/public/head', { title: lang === 'fr' ? service.name_fr : service.name_ar, nav: 'services' }) %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span>
+      <a href="/services?lang=<%= lang %>"><%= t('nav_services') %></a><span>/</span>
+      <span><%= lang === 'fr' ? service.name_fr : service.name_ar %></span>
+    </div>
+    <h1><%= lang === 'fr' ? service.name_fr : service.name_ar %></h1>
+    <p><%= lang === 'fr' ? service.description_fr : service.description_ar %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="display:grid;grid-template-columns:1.35fr .65fr;gap:32px;align-items:start" data-detail-grid>
+    <div>
+      <div class="card" style="padding:28px">
+        <span class="card-icon"><%- include('../partials/icon', { name: service.icon === 'ear' ? 'ear_care' : service.icon }) %></span>
+        <h2 style="font-size:1.3rem"><%= lang === 'ar' ? 'عن هذه الخدمة' : 'À propos de ce service' %></h2>
+        <p style="color:var(--ink-soft)"><%= lang === 'fr' ? service.description_fr : service.description_ar %></p>
+        <% if (service.duration_min) { %>
+          <div class="card-meta"><%- include('../partials/icon', { name: 'clock' }) %>
+            <span><%= t('duration') %>: <%= service.duration_min %><%= service.duration_max ? '–' + service.duration_max : '' %> <%= t('minutes') %></span>
+          </div>
+        <% } %>
+        <div class="notice" style="margin-top:10px">
+          <%- include('../partials/icon', { name: 'alert' }) %>
+          <div><%= lang === 'ar'
+            ? 'هذه الخدمة لا تتضمن تشخيصًا طبيًا آليًا. يقيّم المختص الحالة ويشرح الخيارات المناسبة.'
+            : 'Ce service ne fournit pas de diagnostic médical automatisé. Le spécialiste évalue la situation et explique les options adaptées.' %></div>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="font-size:1.25rem;margin-top:30px"><%= lang === 'ar' ? 'مراكز تقدم هذه الخدمة' : 'Centres proposant ce service' %></h2>
+      <% if (!centers.length) { %>
+        <p style="color:var(--muted)"><%= t('no_centers') %></p>
+      <% } else { %>
+        <div class="grid-3" style="grid-template-columns:1fr 1fr">
+          <% centers.forEach(function (center) { %>
+            <article class="card">
+              <div class="center-top">
+                <div>
+                  <h3 class="center-name"><%= lang === 'fr' ? center.name_fr : center.name_ar %></h3>
+                  <div class="center-loc"><%- include('../partials/icon', { name: 'map-pin' }) %>
+                    <span><%= lang === 'fr' ? center.wilaya_name_fr : center.wilaya_name_ar %> — <%= lang === 'fr' ? center.city_fr : center.city_ar %></span>
+                  </div>
+                </div>
+                <% if (center.is_demo) { %><span class="badge badge-demo"><%= t('demo_data') %></span><% } %>
+              </div>
+              <div class="card-actions" style="margin-top:12px">
+                <% if (center.phone_primary) { %>
+                  <a class="btn btn-ghost btn-sm" href="tel:<%= center.phone_primary.replace(/\s/g,'') %>"><%- include('../partials/icon', { name: 'phone' }) %><%= t('call_now') %></a>
+                <% } %>
+                <a class="btn btn-primary btn-sm" href="/booking?service=<%= service.id %>&center=<%= center.id %>&lang=<%= lang %>"><%= t('request_appointment') %></a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="form-aside">
+      <div class="aside-card">
+        <h3><%= t('hero_cta_book') %></h3>
+        <p style="color:var(--muted);font-size:.88rem"><%= c('booking_note') %></p>
+        <a class="btn btn-primary btn-block" href="/booking?service=<%= service.id %>&lang=<%= lang %>"><%- include('../partials/icon', { name: 'calendar' }) %><%= t('nav_book') %></a>
+      </div>
+      <div class="aside-card">
+        <h3><%= t('contact_phones') %></h3>
+        <% ['phone_primary', 'phone_secondary', 'phone_tertiary'].forEach(function (key) { %>
+          <% if (c(key)) { %>
+            <a href="tel:<%= c(key).replace(/\s/g,'') %>" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;font-weight:700" dir="ltr">
+              <span style="color:var(--blue-600)"><%- include('../partials/icon', { name: 'phone' }) %></span><%= c(key) %>
+            </a>
+          <% } %>
+        <% }) %>
+        <a class="btn btn-ghost btn-block btn-sm" href="/contact?lang=<%= lang %>"><%= t('contact_form_title') %></a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>@media (max-width: 900px) { [data-detail-grid] { grid-template-columns: 1fr !important; } }</style>
+
+<%- include('../partials/public/footer') %>

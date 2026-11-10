@@ -1,0 +1,39 @@
+<%- include('../partials/admin/head', { title: t('menu_notifications'), active: 'notifications' }) %>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2><%= unreadNotifications %> <%= t('notifications_unread') %></h2>
+    <span class="spacer"></span>
+    <% if (unreadNotifications) { %>
+      <form method="post" action="/admin/notifications/read-all">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-ghost btn-sm" type="submit"><%- include('../partials/icon', { name: 'check' }) %><%= t('mark_all_read') %></button>
+      </form>
+    <% } %>
+  </div>
+  <div class="panel-body">
+    <% if (!notifications.length) { %>
+      <div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'bell' }) %></div><%= t('no_notifications') %></div>
+    <% } else { %>
+      <div class="timeline">
+        <% notifications.forEach(function (n) { %>
+          <div class="timeline-item">
+            <span class="timeline-dot" style="<%= n.is_read ? 'background:#c8d6e2;box-shadow:none' : '' %>"></span>
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1;min-width:200px">
+                <div class="d"><%= lang === 'fr' ? n.title_fr : n.title_ar %> <% if (!n.is_read) { %><span class="badge badge-info"><%= t('unread') %></span><% } %></div>
+                <div class="t"><%= lang === 'fr' ? (n.body_fr || '') : (n.body_ar || '') %> · <%= formatDateTime(n.created_at) %></div>
+              </div>
+              <form method="post" action="/admin/notifications/<%= n.id %>/read">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-ghost btn-sm" type="submit"><%= n.link ? t('open') : t('mark_read') %></button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/admin/foot') %>

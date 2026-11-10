@@ -1,0 +1,88 @@
+<%- include('../partials/admin/head', { title: message.subject, active: 'contact-messages' }) %>
+
+<div class="hero-mini" style="margin-bottom:18px">
+  <a class="btn btn-ghost btn-sm" href="/admin/contact-messages"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+  <div>
+    <strong style="font-size:1.05rem"><%= message.subject %></strong>
+    <div class="cell-sub"><%= message.full_name %> · <%= formatDateTime(message.created_at) %> <% if (message.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %></div>
+  </div>
+  <span style="flex:1"></span>
+  <span class="badge badge-<%= statusMeta[message.status] ? statusMeta[message.status].tone : 'muted' %>" style="font-size:.82rem;padding:6px 12px"><%= statusLabel(message.status) %></span>
+</div>
+
+<div class="detail-grid">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('field_message') %></h2></div>
+      <div class="panel-body">
+        <p style="white-space:pre-wrap;color:var(--ink-soft)"><%= message.body %></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('history') %></h2></div>
+      <div class="panel-body">
+        <% if (!history.length) { %>
+          <div class="empty"><%= t('no_history') %></div>
+        <% } else { %>
+          <div class="timeline">
+            <% history.forEach(function (h) { %>
+              <div class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="d"><%= h.action %> — <%= h.old_value || '—' %> → <%= h.new_value || '—' %></div>
+                  <div class="t"><%= h.full_name || '—' %> · <%= formatDateTime(h.created_at) %></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('customer_details') %></h2></div>
+      <div class="panel-body">
+        <div class="detail-list">
+          <div><span><%= t('field_full_name') %></span><span><%= message.full_name %></span></div>
+          <div><span><%= t('field_phone') %></span><span dir="ltr"><%= message.phone %></span></div>
+          <div><span><%= t('field_email') %></span><span dir="ltr"><%= message.email || '—' %></span></div>
+          <div><span><%= t('field_wilaya') %></span><span><%= lang === 'fr' ? (message.wilaya_fr || '—') : (message.wilaya_ar || '—') %></span></div>
+        </div>
+      </div>
+    </section>
+
+    <% if (can('contact_messages.edit')) { %>
+      <section class="panel">
+        <div class="panel-head"><h2><%= t('manage_booking') %></h2></div>
+        <div class="panel-body">
+          <form method="post" action="/admin/contact-messages/<%= message.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field" style="margin-bottom:10px">
+              <label for="status"><%= t('status') %></label>
+              <select id="status" name="status">
+                <% statusFlow.forEach(function (s) { %><option value="<%= s %>" <%= message.status === s ? 'selected' : '' %>><%= statusLabel(s) %></option><% }) %>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:10px">
+              <label for="assigned_employee_id"><%= t('assigned_to') %></label>
+              <select id="assigned_employee_id" name="assigned_employee_id">
+                <option value=""><%= t('unassigned') %></option>
+                <% staff.forEach(function (s) { %><option value="<%= s.id %>" <%= message.assigned_employee_id === s.id ? 'selected' : '' %>><%= s.full_name %></option><% }) %>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:12px">
+              <label for="internal_notes"><%= t('internal_notes') %></label>
+              <textarea id="internal_notes" name="internal_notes" style="min-height:90px"><%= message.internal_notes || '' %></textarea>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit"><%= t('save') %></button>
+          </form>
+        </div>
+      </section>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/admin/foot') %>

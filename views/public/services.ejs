@@ -1,0 +1,42 @@
+<%- include('../partials/public/head', { title: t('our_services'), nav: 'services' }) %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= t('nav_services') %></span></div>
+    <h1><%= t('our_services') %></h1>
+    <p><%= t('our_services_intro') %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="grid-3">
+      <% services.forEach(function (service) { %>
+        <article class="card reveal">
+          <span class="card-icon"><%- include('../partials/icon', { name: service.icon === 'ear' ? 'ear_care' : service.icon }) %></span>
+          <h3><%= lang === 'fr' ? service.name_fr : service.name_ar %></h3>
+          <p><%= lang === 'fr' ? service.description_fr : service.description_ar %></p>
+          <% if (service.duration_min) { %>
+            <div class="card-meta">
+              <%- include('../partials/icon', { name: 'clock' }) %>
+              <span><%= t('duration') %>: <%= service.duration_min %><%= service.duration_max ? '–' + service.duration_max : '' %> <%= t('minutes') %></span>
+            </div>
+          <% } %>
+          <div class="card-actions">
+            <a class="btn btn-ghost btn-sm" href="/services/<%= service.slug %>?lang=<%= lang %>"><%= t('more_info') %></a>
+            <a class="btn btn-primary btn-sm" href="/booking?service=<%= service.id %>&lang=<%= lang %>"><%= t('request_appointment') %></a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+    <div class="notice" style="max-width:900px;margin:34px auto 0">
+      <%- include('../partials/icon', { name: 'info' }) %>
+      <div><%= lang === 'ar'
+        ? 'الخدمات والمدد التقديرية تُعرض للتعريف. يحدد المختص الإجراء المناسب بعد التقييم، وتُأكد المدة والتفاصيل عند التواصل.'
+        : 'Les services et durées sont indicatifs. Le spécialiste détermine la démarche adaptée après évaluation ; la durée et les détails sont confirmés lors du contact.' %></div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/public/footer') %>

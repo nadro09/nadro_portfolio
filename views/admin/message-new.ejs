@@ -1,0 +1,34 @@
+<%- include('../partials/admin/head', { title: t('new_conversation'), active: 'messages' }) %>
+
+<section class="panel">
+  <div class="panel-head">
+    <a class="btn btn-ghost btn-sm" href="/admin/messages"><%- include('../partials/icon', { name: 'arrow-left' }) %><%= t('back') %></a>
+    <h2><%= t('new_conversation') %></h2>
+  </div>
+  <div class="panel-body">
+    <% if (errors && errors.length) { %>
+      <div class="alert alert-error"><%- include('../partials/icon', { name: 'alert' }) %><div>
+        <% errors.forEach(function (e) { %><div><%= e.message %></div><% }) %>
+      </div></div>
+    <% } %>
+    <form method="post" action="/admin/messages/new" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-grid">
+        <div class="field full"><label for="subject"><%= t('message_subject') %> *</label><input id="subject" name="subject" required></div>
+        <div class="field full">
+          <label><%= t('participants') %> *</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:12px">
+            <% employees.forEach(function (e) { %>
+              <label class="check"><input type="checkbox" name="participants" value="<%= e.id %>"><span><%= e.full_name %> <span class="hint"><%= lang === 'fr' ? (e.job_title_fr || '') : (e.job_title_ar || '') %></span></span></label>
+            <% }) %>
+          </div>
+        </div>
+        <div class="field full"><label for="body"><%= t('message_body') %></label><textarea id="body" name="body"></textarea></div>
+        <div class="field full"><label for="attachment"><%= t('attach_file') %></label><input id="attachment" name="attachment" type="file"><span class="hint">PDF, images, Word, Excel, TXT — 5 MB</span></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'send' }) %><%= t('send') %></button></div>
+    </form>
+  </div>
+</section>
+
+<%- include('../partials/admin/foot') %>

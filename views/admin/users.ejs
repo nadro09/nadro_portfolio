@@ -1,0 +1,69 @@
+<%- include('../partials/admin/head', { title: t('users'), active: 'users' }) %>
+
+<section class="panel">
+  <form class="toolbar" method="get" action="/admin/users">
+    <div class="field grow"><label for="q"><%= t('search') %></label><input id="q" name="q" value="<%= filters.q || '' %>" placeholder="<%= t('search') %>"></div>
+    <div class="field"><label for="role"><%= t('role') %></label>
+      <select id="role" name="role"><option value=""><%= t('all') %></option>
+        <% roles.forEach(function (r) { %><option value="<%= r.key %>" <%= filters.role === r.key ? 'selected' : '' %>><%= lang === 'fr' ? r.name_fr : r.name_ar %></option><% }) %>
+      </select>
+    </div>
+    <div class="field"><label for="status"><%= t('status') %></label>
+      <select id="status" name="status">
+        <option value=""><%= t('all') %></option>
+        <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>><%= t('is_active') %></option>
+        <option value="inactive" <%= filters.status === 'inactive' ? 'selected' : '' %>><%= t('inactive') %></option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit"><%= t('filter') %></button>
+    <a class="btn btn-ghost" href="/admin/users"><%= t('clear_filters') %></a>
+    <% if (can('users.manage')) { %>
+      <a class="btn btn-primary" href="/admin/users/new"><%- include('../partials/icon', { name: 'plus' }) %><%= t('add_user') %></a>
+      <a class="btn btn-ghost" href="/admin/users/roles"><%- include('../partials/icon', { name: 'shield' }) %><%= t('roles') %></a>
+    <% } %>
+  </form>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('field_full_name') %></th><th><%= t('username') %></th><th><%= t('roles') %></th><th><%= t('center') %></th><th><%= t('last_login') %></th><th><%= t('status') %></th><th></th></tr></thead>
+      <tbody>
+        <% if (!users.length) { %>
+          <tr><td colspan="7"><div class="empty"><div class="ico"><%- include('../partials/icon', { name: 'users' }) %></div><%= t('no_results') %></div></td></tr>
+        <% } %>
+        <% users.forEach(function (u) { %>
+          <tr>
+            <td>
+              <div class="cell-main"><%= u.full_name %></div>
+              <div class="cell-sub" dir="ltr"><%= u.email %></div>
+              <% if (u.is_demo) { %><span class="badge badge-demo"><%= t('demo_badge') %></span><% } %>
+              <% if (u.must_change_password) { %><span class="badge badge-warn"><%= t('change_password') %></span><% } %>
+            </td>
+            <td dir="ltr"><%= u.username %></td>
+            <td><%= lang === 'fr' ? (u.roles_fr || '—') : (u.roles_ar || '—') %></td>
+            <td><%= lang === 'fr' ? (u.center_fr || '—') : (u.center_ar || '—') %></td>
+            <td class="nowrap"><%= u.last_login_at ? formatDateTime(u.last_login_at) : '—' %></td>
+            <td><span class="badge badge-<%= u.is_active ? 'ok' : 'muted' %>"><%= u.is_active ? t('is_active') : t('inactive') %></span></td>
+            <td class="actions-cell">
+              <% if (can('users.manage')) { %>
+                <a class="btn btn-ghost btn-sm" href="/admin/users/<%= u.id %>/edit"><%= t('edit') %></a>
+                <% if (u.id !== currentUser.id) { %>
+                  <form method="post" action="/admin/users/<%= u.id %>/toggle" data-confirm="<%= t('confirm_status_text') %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-ghost btn-sm" type="submit"><%= u.is_active ? t('deactivate') : t('activate') %></button>
+                  </form>
+                  <form method="post" action="/admin/users/<%= u.id %>/reset-password" data-confirm="<%= t('reset_password') %>?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-ghost btn-sm" type="submit"><%= t('reset_password') %></button>
+                  </form>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span class="info"><%= users.length %> <%= t('results') %></span></div>
+</section>
+
+<%- include('../partials/admin/foot') %>

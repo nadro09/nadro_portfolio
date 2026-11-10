@@ -1,0 +1,37 @@
+<%- include('../partials/public/head', { title: t('nav_faq'), nav: 'faq' }) %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= t('nav_faq') %></span></div>
+    <h1><%= c('faq_title') %></h1>
+    <p><%= c('faq_intro') %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:860px">
+    <% if (!faqs.length) { %>
+      <p style="color:var(--muted)"><%= t('no_data') %></p>
+    <% } %>
+    <div class="faq-list">
+      <% faqs.forEach(function (faq, i) { %>
+        <details class="faq-item" <%= i === 0 ? 'open' : '' %>>
+          <summary><%= lang === 'fr' ? faq.question_fr : faq.question_ar %></summary>
+          <div class="faq-answer"><%= lang === 'fr' ? faq.answer_fr : faq.answer_ar %></div>
+        </details>
+      <% }) %>
+    </div>
+
+    <div class="cta-band" style="margin-top:32px;grid-template-columns:1fr auto">
+      <div>
+        <h2 style="font-size:1.2rem"><%= t('faq_more') %></h2>
+        <p><%= t('contact_intro') %></p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-ghost" href="/contact?lang=<%= lang %>"><%- include('../partials/icon', { name: 'message' }) %><%= t('faq_contact') %></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/public/footer') %>

@@ -1,0 +1,97 @@
+<%- include('../partials/public/head', { title: t('nav_centers'), nav: 'centers' }) %>
+
+<section class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="/?lang=<%= lang %>"><%= t('nav_home') %></a><span>/</span><span><%= t('nav_centers') %></span></div>
+    <h1><%= c('centers_title') %></h1>
+    <p><%= c('centers_intro') %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <form class="card" method="get" action="/centers" style="padding:18px;margin-bottom:26px">
+      <input type="hidden" name="lang" value="<%= lang %>">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr auto;gap:12px;align-items:end">
+        <div class="field">
+          <label for="q"><%= t('centers_search') %></label>
+          <input id="q" name="q" value="<%= filters.q %>" placeholder="<%= lang === 'ar' ? 'مثال: وهران أو المدينة الجديدة' : 'Ex. Oran ou Ville Nouvelle' %>">
+        </div>
+        <div class="field">
+          <label for="wilaya"><%= t('wilaya') %></label>
+          <select id="wilaya" name="wilaya">
+            <option value=""><%= t('all_wilayas') %></option>
+            <% wilayas.forEach(function (w) { %>
+              <option value="<%= w.id %>" <%= filters.wilaya === w.id ? 'selected' : '' %>><%= w.id %> — <%= lang === 'fr' ? w.name_fr : w.name_ar %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" type="submit"><%- include('../partials/icon', { name: 'search' }) %><%= t('search') %></button>
+          <a class="btn btn-ghost" href="/centers?lang=<%= lang %>"><%= t('reset') %></a>
+        </div>
+      </div>
+    </form>
+
+    <p style="color:var(--muted);font-size:.88rem"><strong><%= centers.length %></strong> <%= t('results') %></p>
+
+    <% if (!centers.length) { %>
+      <div class="card" style="text-align:center;padding:40px">
+        <div style="color:var(--blue-600);margin-bottom:10px"><%- include('../partials/icon', { name: 'map-pin' }) %></div>
+        <p style="margin:0;color:var(--muted)"><%= t('no_centers') %></p>
+      </div>
+    <% } else { %>
+      <div class="grid-3">
+        <% centers.forEach(function (center) { %>
+          <article class="card center-card">
+            <div class="center-top">
+              <div>
+                <h3 class="center-name"><%= lang === 'fr' ? center.name_fr : center.name_ar %></h3>
+                <div class="center-loc"><%- include('../partials/icon', { name: 'map-pin' }) %>
+                  <span><%= lang === 'fr' ? center.wilaya_name_fr : center.wilaya_name_ar %> — <%= lang === 'fr' ? center.city_fr : center.city_ar %></span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                <span class="badge badge-ok"><%= lang === 'ar' ? 'نشط' : 'Actif' %></span>
+                <% if (center.is_demo) { %><span class="badge badge-demo"><%= t('demo_data') %></span><% } %>
+              </div>
+            </div>
+            <div class="center-meta">
+              <% if ((lang === 'fr' ? center.address_fr : center.address_ar)) { %>
+                <div><%- include('../partials/icon', { name: 'building' }) %><span><%= lang === 'fr' ? center.address_fr : center.address_ar %></span></div>
+              <% } %>
+              <% if (center.phone_primary) { %>
+                <div><%- include('../partials/icon', { name: 'phone' }) %><span dir="ltr"><%= center.phone_primary %><%= center.phone_secondary ? ' / ' + center.phone_secondary : '' %></span></div>
+              <% } %>
+              <% if ((lang === 'fr' ? center.opening_hours_fr : center.opening_hours_ar)) { %>
+                <div><%- include('../partials/icon', { name: 'clock' }) %><span><%= lang === 'fr' ? center.opening_hours_fr : center.opening_hours_ar %></span></div>
+              <% } %>
+              <div><%- include('../partials/icon', { name: 'clipboard' }) %><span><%= t('center_code') %>: <%= center.code %></span></div>
+            </div>
+            <div class="chips">
+              <% (center.services || []).forEach(function (s) { %>
+                <span class="chip"><%= lang === 'fr' ? s.name_fr : s.name_ar %></span>
+              <% }) %>
+            </div>
+            <div class="card-actions">
+              <% if (center.phone_primary) { %>
+                <a class="btn btn-primary btn-sm" href="tel:<%= center.phone_primary.replace(/\s/g,'') %>"><%- include('../partials/icon', { name: 'phone' }) %><%= t('call_now') %></a>
+              <% } %>
+              <% const mapQuery = (center.latitude && center.longitude)
+                   ? `${center.latitude},${center.longitude}`
+                   : ((lang === 'fr' ? center.address_fr : center.address_ar) || (lang === 'fr' ? center.city_fr : center.city_ar)); %>
+              <a class="btn btn-ghost btn-sm" href="https://www.openstreetmap.org/search?query=<%= encodeURIComponent(mapQuery) %>" target="_blank" rel="noopener">
+                <%- include('../partials/icon', { name: 'map' }) %><%= t('view_map') %>
+              </a>
+              <a class="btn btn-soft btn-sm" href="/booking?center=<%= center.id %>&lang=<%= lang %>"><%= t('request_appointment') %></a>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<style>@media (max-width: 760px) { .page-head + .section form > div { grid-template-columns: 1fr !important; } }</style>
+
+<%- include('../partials/public/footer') %>

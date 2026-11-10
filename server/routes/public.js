@@ -464,9 +464,15 @@ router.post('/api/assistant', assistantThrottle, async (req, res) => {
     if (!reply) return res.status(502).json({ error: 'empty_reply' });
     return res.json({ reply });
   } catch (err) {
-    console.error('[audiolef] assistant error:', err.code || err.message);
-    const notConfigured = err.code === 'AI_NOT_CONFIGURED';
-    return res.status(notConfigured ? 503 : 502).json({ error: notConfigured ? 'not_configured' : 'provider_error' });
+    // Missing key, exhausted credits or a rejected key are availability
+    // problems: the widget asks the visitor to contact us instead of retrying.
+    const unavailable = err.code === 'AI_NOT_CONFIGURED' || err.code === 'AI_UNAVAILABLE';
+    if (unavailable) {
+      console.warn('[audiolef] assistant unavailable:', err.code);
+    } else {
+      console.error('[audiolef] assistant error:', err.code || err.message);
+    }
+    return res.status(unavailable ? 503 : 502).json({ error: unavailable ? 'unavailable' : 'provider_error' });
   }
 });
 

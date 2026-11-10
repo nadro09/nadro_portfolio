@@ -35,7 +35,10 @@ async function chat(messages, opts = {}) {
     if (!res.ok) {
       const text = (await res.text()).slice(0, 300);
       const err = new Error(`AI provider ${res.status}: ${text}`);
-      err.code = 'AI_PROVIDER';
+      // 401/402/403/429 mean the key cannot be used right now (invalid, out of
+      // credits or rate limited), which is a service availability problem the
+      // visitor cannot retry away.
+      err.code = [401, 402, 403, 429].includes(res.status) ? 'AI_UNAVAILABLE' : 'AI_PROVIDER';
       throw err;
     }
     const data = await res.json();
